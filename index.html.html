@@ -3,245 +3,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Epic Birthday Gift</title>
+    <title>3D Birthday Experience</title>
     <style>
         :root {
             --gold: #ffd700;
             --red: #e74c3c;
             --ribbon: #f1c40f;
             --bg-dark: #1a1a2e;
+            --cake-base: #f8bbd0;
+            --cake-mid: #f48fb1;
+            --cake-top: #ec407a;
         }
 
         body {
             margin: 0;
             padding: 0;
-            background-color: var(--bg-dark);
+            background: radial-gradient(circle, #2a2a4e 0%, #000000 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: white;
             overflow: hidden;
             touch-action: none;
+            perspective: 1200px; /* Memberikan kedalaman 3D pada layar */
         }
 
+        /* Container Dunia yang akan berputar */
         #world-container {
             width: 100%;
-            height: 200vh;
+            height: 100vh;
             position: relative;
-            transition: transform 1.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform-style: preserve-3d;
+            transition: transform 2.5s cubic-bezier(0.65, 0.05, 0.36, 1);
         }
 
-        /* --- BAGIAN 1: KOTAK KADO (Atas) --- */
-        .gift-section {
+        section {
+            width: 100%;
             height: 100vh;
+            position: absolute;
+            left: 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: radial-gradient(circle, #2a2a4e 0%, #1a1a2e 100%);
-            position: relative;
-            z-index: 5;
+            backface-visibility: hidden;
         }
 
-        /* Desain KOTAK KADO */
-        .gift-container {
-            position: relative;
-            width: 180px;
-            height: 180px;
-            cursor: pointer;
+        /* --- SECTION 1: KADO (ATAS) --- */
+        .gift-section {
+            top: 0;
+            z-index: 10;
+        }
+
+        /* --- 3D CUBE SYSTEM --- */
+        .cube-scene {
+            width: 200px;
+            height: 200px;
+            perspective: 600px;
             margin-top: 50px;
         }
 
-        /* Badan Kotak */
-        .gift-box {
-            position: absolute;
-            bottom: 0;
+        .cube {
             width: 100%;
-            height: 140px;
-            background: var(--red);
-            border-radius: 4px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-        }
-        
-        /* Pita Vertikal di Badan */
-        .gift-box::before {
-            content: ''; position: absolute;
-            left: 50%; top: 0; bottom: 0;
-            width: 30px; background: var(--ribbon);
-            transform: translateX(-50%);
-            border-left: 2px solid rgba(0,0,0,0.1);
-            border-right: 2px solid rgba(0,0,0,0.1);
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(-20deg) rotateY(45deg); /* Sudut pandang awal */
+            transition: transform 0.5s;
+            cursor: pointer;
         }
 
-        /* Tutup Kotak */
-        .gift-lid {
+        /* Animasi Kado Goyang */
+        .shaking .cube {
+            animation: shake3d 0.5s infinite;
+        }
+
+        .cube__face {
             position: absolute;
-            top: 0; left: -10px; /* Lebih lebar dari badan */
             width: 200px;
-            height: 50px;
-            background: #c0392b; /* Merah lebih tua */
-            border-radius: 4px;
-            z-index: 2;
-            transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-
-        /* Pita di Tutup (Horizontal & Vertikal) */
-        .gift-lid::before { /* Vertikal */
-            content: ''; position: absolute;
-            left: 50%; top: 0; bottom: 0;
-            width: 30px; background: var(--ribbon);
-            transform: translateX(-50%);
-        }
-        .gift-lid::after { /* Horizontal (Efek samping) */
-            content: ''; position: absolute;
-            top: 50%; left: 0; right: 0;
-            height: 0; 
-            /* Tidak full horizontal karena 2D, cukup hiasan pita atas */
-        }
-
-        /* Kuncir Pita (Bow) */
-        .bow {
-            position: absolute;
-            top: -30px; left: 50%;
-            transform: translateX(-50%);
-            width: 60px; height: 30px;
-            z-index: 3;
-        }
-        .bow::before, .bow::after {
-            content: ''; position: absolute;
-            top: 0; width: 40px; height: 40px;
-            border: 8px solid var(--ribbon);
-            border-radius: 50%;
-            border-bottom-color: transparent;
-            border-left-color: transparent;
-        }
-        .bow::before { left: -25px; transform: rotate(45deg); }
-        .bow::after { right: -25px; transform: rotate(-45deg); }
-
-        /* Animasi Buka Kado */
-        .shaking { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) infinite both; }
-        
-        .open .gift-lid {
-            /* Tutup terangkat dan berputar sedikit */
-            transform: translateY(-80px) rotate(-15deg) translateX(20px);
-        }
-        .open .bow {
-             /* Pita ikut tutup */
-             opacity: 0.8; 
-        }
-
-        /* Cahaya keluar */
-        .gift-glow {
-            position: absolute; top: 50%; left: 50%;
-            width: 10px; height: 10px;
-            box-shadow: 0 0 0 0 var(--gold);
-            opacity: 0; transition: opacity 0.5s, box-shadow 1s;
-            z-index: 1;
-        }
-        .open .gift-glow {
-            opacity: 1;
-            box-shadow: 0 0 150px 80px var(--gold);
-        }
-
-        /* --- AREA KARTU TUMPUK (STACK) --- */
-        .card-area {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; /* Supaya klik tembus ke kado dulu */
+            height: 200px;
+            background: var(--red);
+            border: 2px solid #c0392b;
             display: flex;
-            justify-content: center;
             align-items: center;
-            z-index: 10;
-            overflow: hidden;
-            perspective: 1000px; /* Efek 3D */
+            justify-content: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+        }
+
+        /* Posisi Sisi Kotak */
+        .cube__face--front  { transform: rotateY(  0deg) translateZ(100px); }
+        .cube__face--right  { transform: rotateY( 90deg) translateZ(100px); }
+        .cube__face--back   { transform: rotateY(180deg) translateZ(100px); }
+        .cube__face--left   { transform: rotateY(-90deg) translateZ(100px); }
+        .cube__face--bottom { transform: rotateX(-90deg) translateZ(100px); background: #a93226; }
+        
+        /* Pita Kado (Ribbon) */
+        .ribbon-v { position: absolute; width: 40px; height: 100%; background: var(--ribbon); }
+        .ribbon-h { position: absolute; width: 100%; height: 40px; background: var(--ribbon); }
+
+        /* Tutup Kado (Lid) - Objek 3D Terpisah */
+        .lid-container {
+            position: absolute;
+            width: 210px; height: 50px; /* Lebih lebar sedikit */
+            top: -50px; left: -5px;
+            transform-style: preserve-3d;
+            transform-origin: back; /* Engsel di belakang */
+            transition: transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        
+        /* Jika dibuka */
+        .open .lid-container {
+            transform: rotateX(120deg);
+        }
+
+        .lid__face {
+            position: absolute;
+            background: #e74c3c;
+            border: 2px solid #c0392b;
+        }
+        .lid--top   { width: 210px; height: 210px; transform: rotateX(90deg) translateZ(25px); top: -80px; }
+        .lid--front { width: 210px; height: 50px; transform: rotateY(0deg) translateZ(105px); top: 25px; }
+        .lid--back  { width: 210px; height: 50px; transform: rotateY(180deg) translateZ(105px); top: 25px; }
+        .lid--right { width: 210px; height: 50px; transform: rotateY(90deg) translateZ(105px); top: 25px; left: 0; }
+        .lid--left  { width: 210px; height: 50px; transform: rotateY(-90deg) translateZ(105px); top: 25px; left: 0; }
+
+        /* Kuncir Pita 3D Sederhana */
+        .bow-knot {
+            position: absolute; top: -110px; left: 85px;
+            width: 40px; height: 40px; background: var(--ribbon);
+            transform: rotateX(90deg) translateZ(0);
+            border-radius: 50%;
+            z-index: 20;
+        }
+
+        /* --- AREA KARTU --- */
+        .card-area {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            pointer-events: none;
+            perspective: 1000px;
+            z-index: 20;
         }
 
         .card {
             position: absolute;
-            /* UKURAN BESAR 80% */
-            width: 80%;
-            max-width: 380px; 
-            height: 60vh; /* Menggunakan VH agar proporsional */
-            max-height: 550px;
-            
-            background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
-            border-radius: 20px;
-            border: 4px solid var(--gold);
+            width: 80%; max-width: 360px; height: 60vh;
+            background: white;
+            border-radius: 15px;
             padding: 20px;
-            box-sizing: border-box;
             text-align: center;
-            color: #333;
-            
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            
-            /* Hidden initially */
-            transform: translateY(100vh) scale(0.5); 
+            display: flex; flex-direction: column; justify-content: space-between;
+            /* Hidden State */
+            transform: translateY(100vh) rotateX(20deg) scale(0.8);
             opacity: 0;
-            transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s;
-            pointer-events: auto; /* Kartu bisa diklik */
-            cursor: pointer;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: auto;
+        }
+        .card img { width: 100%; height: auto; max-height: 50%; object-fit: cover; border-radius: 10px; background: #ddd; margin-bottom: 10px;}
+        .card h3 { color: var(--red); margin: 5px 0;}
+        .card.active { transform: translateY(0) rotateX(0) scale(1); opacity: 1; }
+        .card.swiped { transform: translateX(120vw) rotate(45deg) !important; opacity: 0; pointer-events: none; transition: 0.5s; }
+
+
+        /* --- SECTION 2: KUE 3D (BAWAH) --- */
+        .cake-section {
+            top: 100vh; /* Ada di bawah layar */
+            background: transparent;
+        }
+
+        /* Struktur Kue 3D (Menggunakan tumpukan div 3D) */
+        .cake-3d {
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(-20deg) rotateY(30deg); /* Isometrik */
+        }
+
+        .layer {
+            position: absolute;
+            left: 50%;
+            transform-style: preserve-3d;
+            transform: translateX(-50%);
+        }
+
+        /* Fungsi Membuat Kotak 3D untuk Layer Kue */
+        .box-3d {
+            transform-style: preserve-3d;
+        }
+        .box-3d div { position: absolute; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); }
+        .box-3d .top { transform: rotateX(90deg) translateZ(50px); }
+        .box-3d .front { transform: translateZ(50px); }
+        .box-3d .right { transform: rotateY(90deg) translateZ(50px); }
+        .box-3d .left { transform: rotateY(-90deg) translateZ(50px); }
+        .box-3d .back { transform: rotateY(180deg) translateZ(50px); }
+
+        /* Styling Layer Bawah */
+        .layer-bottom { bottom: 0; width: 200px; height: 80px; }
+        .layer-bottom div { width: 200px; height: 80px; background: var(--cake-base); }
+        .layer-bottom .top { height: 200px; transform: rotateX(90deg) translateZ(40px); background: #fce4ec; } /* Top face adjust */
+        .layer-bottom .front, .layer-bottom .back, .layer-bottom .right, .layer-bottom .left { transform-origin: center; }
+        /* Manual adjustment for CSS Cube size without complex JS, using generic face approach below for simplicity */
+        
+        /* SIMPLIFIED 3D CAKE (Square Tiers) */
+        .cake-tier {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            transform-style: preserve-3d;
         }
         
-        /* Gambar dalam kartu */
-        .card img {
-            width: 100%;
-            height: auto;
-            max-height: 50%; /* Membatasi tinggi gambar */
-            object-fit: cover;
-            border-radius: 10px;
-            background: #ddd; 
-            margin-bottom: 15px;
+        .tier-1 { bottom: 0; width: 200px; height: 80px; z-index: 1; }
+        .tier-2 { bottom: 80px; width: 150px; height: 70px; z-index: 2; }
+        .tier-3 { bottom: 150px; width: 100px; height: 60px; z-index: 3; }
+
+        .face { position: absolute; opacity: 0.9; }
+        .face-front { width: 100%; height: 100%; background: inherit; transform: translateZ(var(--depth)); }
+        .face-back { width: 100%; height: 100%; background: inherit; transform: rotateY(180deg) translateZ(var(--depth)); }
+        .face-right { width: 100%; height: 100%; background: inherit; right: 0; transform: rotateY(90deg) translateZ(calc(var(--w) / 2)); width: var(--depth-side); }
+        .face-left { width: 100%; height: 100%; background: inherit; left: 0; transform: rotateY(-90deg) translateZ(calc(var(--w) / 2)); width: var(--depth-side); }
+        .face-top { width: 100%; height: var(--w); background: #fff0f5; top: 0; transform: rotateX(90deg) translateZ(calc(var(--w) / 2)); }
+
+        /* Warna Tier */
+        .tier-1 { --w: 200px; --depth: 100px; --depth-side: 200px; background: var(--cake-base); }
+        .tier-2 { --w: 150px; --depth: 75px; --depth-side: 150px; background: var(--cake-mid); }
+        .tier-3 { --w: 100px; --depth: 50px; --depth-side: 100px; background: var(--cake-top); }
+
+        /* Lilin 3D */
+        .candles {
+            position: absolute; bottom: 210px; width: 100%; text-align: center;
+            transform-style: preserve-3d; z-index: 10;
         }
-
-        .card h3 { margin: 10px 0; color: #c0392b; font-size: 1.5em; }
-        .card p { font-size: 1.1em; line-height: 1.4; flex-grow: 1; display: flex; align-items: center; justify-content: center;}
-        .tap-hint { font-size: 0.9em; color: #888; margin-top: 10px; font-weight: bold; }
-
-        /* State ketika kartu muncul dari kado */
-        .card.active {
-            opacity: 1;
-            /* Transform diatur via inline style JS untuk efek tumpukan acak */
+        .candle-3d {
+            display: inline-block; width: 10px; height: 40px; background: white;
+            margin: 0 5px; position: relative;
+            transform: translateZ(0); /* Simple flat candle in 3d space */
         }
-
-        /* Animasi kartu dibuang/pindah (Swipe effect) */
-        .card.swiped {
-            transform: translateX(120%) rotate(20deg) !important;
+        .flame {
+            width: 14px; height: 20px; background: orange;
+            border-radius: 50% 50% 20% 20%;
+            position: absolute; top: -20px; left: -2px;
+            animation: flicker 0.5s infinite alternate;
+            box-shadow: 0 0 10px orange;
+        }
+        .smoke {
+            width: 10px; height: 20px; background: #ccc;
+            border-radius: 50%; position: absolute; top: -25px; left: 0;
             opacity: 0;
-            pointer-events: none;
-            transition: transform 0.6s ease-in, opacity 0.4s;
         }
 
-        /* --- BAGIAN 2: KUE (Bawah) - (Kode lama dipertahankan) --- */
-        .cake-section {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: radial-gradient(circle, #3e2a4e 0%, #1a1a2e 100%);
-            position: relative;
+        #blowButton {
+            margin-top: 100px;
+            padding: 15px 40px; font-size: 1.2em;
+            background: var(--gold); border: none; border-radius: 30px;
+            font-weight: bold; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+            transform: translateZ(50px); /* Agar tombol melayang */
         }
-        .cake-container { position: relative; margin-top: 50px; }
-        .cake-base { width: 200px; height: 60px; background: #f8bbd0; border-radius: 10px 10px 0 0; position: relative; }
-        .cake-middle { width: 180px; height: 50px; background: #f48fb1; border-radius: 10px 10px 0 0; margin: 0 auto; }
-        .cake-top { width: 150px; height: 40px; background: #ec407a; border-radius: 10px 10px 0 0; margin: 0 auto; position: relative; }
-        .candles-container { display: flex; justify-content: center; gap: 15px; position: absolute; top: -30px; width: 100%; }
-        .candle { width: 10px; height: 30px; background: white; border-radius: 3px; position: relative; }
-        .flame { width: 14px; height: 20px; background: orange; border-radius: 50% 50% 20% 20%; position: absolute; top: -20px; left: -2px; animation: flicker 0.5s infinite alternate; box-shadow: 0 0 10px orange, 0 0 20px yellow; }
-        .smoke { width: 10px; height: 20px; background: #ccc; border-radius: 50%; position: absolute; top: -25px; left: 0; opacity: 0; }
-        #blowButton { margin-top: 40px; padding: 15px 40px; font-size: 1.2em; background: var(--gold); color: #8b4513; border: none; border-radius: 30px; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4); transition: transform 0.1s; user-select: none; }
-        #blowButton:active { transform: scale(0.95); }
-        .wish-text { font-size: 2em; margin-bottom: 20px; opacity: 0; transition: opacity 1s;}
+
+        /* --- ANIMASI TRANSISI (SPIN & DROP) --- */
+        .world-spin-drop {
+            /* Pindah ke Y: -100vh (ke section kue) DAN Putar Z: 1 putaran penuh */
+            transform: translateY(-100vh) rotateZ(360deg) !important;
+        }
+        
+        .wish-text { opacity: 0; transition: 1s; font-size: 2em; margin-bottom: 20px;}
         .wish-text.show { opacity: 1; }
-        .final-message { position: absolute; top: 20%; width: 100%; text-align: center; font-size: 2.5em; color: var(--gold); opacity: 0; transition: opacity 2s; pointer-events: none;}
+        .final-msg { opacity: 0; position: absolute; top: 20%; font-size: 2.5em; color: var(--gold); width: 100%; text-align: center; transition: 2s; }
 
-        @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
-        @keyframes flicker { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(0.9, 1.1); opacity: 0.8; } }
-        @keyframes smokeRise { 0% { opacity: 0.8; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-30px) scale(2); } }
-        .flame.out { animation: none; opacity: 0; }
-        .smoke.rise { animation: smokeRise 1s forwards; }
+        @keyframes shake3d {
+            0% { transform: rotateX(-20deg) rotateY(45deg) rotateZ(0deg); }
+            25% { transform: rotateX(-20deg) rotateY(40deg) rotateZ(2deg); }
+            50% { transform: rotateX(-20deg) rotateY(50deg) rotateZ(-2deg); }
+            75% { transform: rotateX(-20deg) rotateY(40deg) rotateZ(2deg); }
+            100% { transform: rotateX(-20deg) rotateY(45deg) rotateZ(0deg); }
+        }
+        @keyframes flicker { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0.8; transform: scale(0.9, 1.1); } }
+        @keyframes smokeRise { 100% { opacity: 0; transform: translateY(-40px) scale(2); } }
+        .flame.out { display: none; }
+        .smoke.rise { animation: smokeRise 1s forwards; opacity: 0.8; }
 
     </style>
 </head>
@@ -250,194 +287,167 @@
     <div id="world-container">
         
         <section class="gift-section">
-            <h1 style="margin-bottom: 20px; z-index: 6;">Tap Kado-nya! 🎁</h1>
+            <h1 style="margin-bottom: 20px;">Tap Kadonya! 🎁</h1>
             
-            <div class="gift-container" id="gift" onclick="openGift()">
-                <div class="gift-glow"></div>
-                <div class="gift-lid">
-                    <div class="bow"></div>
+            <div class="cube-scene">
+                <div class="cube" id="giftCube" onclick="openGift()">
+                    <div class="lid-container">
+                        <div class="lid__face lid--top"><div class="ribbon-v"></div><div class="ribbon-h"></div></div>
+                        <div class="lid__face lid--front"><div class="ribbon-v"></div></div>
+                        <div class="lid__face lid--back"><div class="ribbon-v"></div></div>
+                        <div class="lid__face lid--right"><div class="ribbon-h"></div></div>
+                        <div class="lid__face lid--left"><div class="ribbon-h"></div></div>
+                        <div class="bow-knot"></div>
+                    </div>
+
+                    <div class="cube__face cube__face--front"><div class="ribbon-v"></div></div>
+                    <div class="cube__face cube__face--back"><div class="ribbon-v"></div></div>
+                    <div class="cube__face cube__face--right"><div class="ribbon-h"></div></div>
+                    <div class="cube__face cube__face--left"><div class="ribbon-h"></div></div>
+                    <div class="cube__face cube__face--bottom"></div>
                 </div>
-                <div class="gift-box"></div>
             </div>
 
             <div class="card-area" id="cardArea"></div>
         </section>
 
+
         <section class="cake-section">
-            <h1 class="wish-text" id="wishText">Make a Wish...</h1>
-            <div class="cake-container">
-                <div class="candles-container">
-                    <div class="candle"><div class="flame"></div><div class="smoke"></div></div>
-                    <div class="candle"><div class="flame"></div><div class="smoke"></div></div>
-                    <div class="candle"><div class="flame"></div><div class="smoke"></div></div>
+            <h1 class="wish-text" id="wishText">Make a Wish... ✨</h1>
+            
+            <div class="cake-3d">
+                <div class="candles">
+                    <div class="candle-3d"><div class="flame"></div><div class="smoke"></div></div>
+                    <div class="candle-3d"><div class="flame"></div><div class="smoke"></div></div>
+                    <div class="candle-3d"><div class="flame"></div><div class="smoke"></div></div>
                 </div>
-                <div class="cake-top"></div>
-                <div class="cake-middle"></div>
-                <div class="cake-base"></div>
+
+                <div class="cake-tier tier-3">
+                    <div class="face face-front"></div><div class="face face-back"></div>
+                    <div class="face face-right"></div><div class="face face-left"></div><div class="face face-top"></div>
+                </div>
+                <div class="cake-tier tier-2">
+                    <div class="face face-front"></div><div class="face face-back"></div>
+                    <div class="face face-right"></div><div class="face face-left"></div><div class="face face-top"></div>
+                </div>
+                <div class="cake-tier tier-1">
+                    <div class="face face-front"></div><div class="face face-back"></div>
+                    <div class="face face-right"></div><div class="face face-left"></div><div class="face face-top"></div>
+                </div>
             </div>
+
             <button id="blowButton">Tahan untuk Meniup</button>
-            <h1 class="final-message" id="finalMsg">🎉 Happy Birthday! 🎉</h1>
+            <h1 class="final-msg" id="finalMsg">Happy Birthday! 🎉</h1>
         </section>
 
     </div>
 
     <script>
-        // ================= DATA KARTU =================
+        // === CONFIG ===
         const cardsData = [
-            {
-                type: "Hi Kamu! 👋",
-                img: "foto1.jpg", 
-                text: "Selamat Ulang Tahun! Semoga harimu menyenangkan."
-            },
-            {
-                type: "Terima Kasih 🙏",
-                img: "", 
-                text: "Sudah menjadi teman yang luar biasa selama ini."
-            },
-            {
-                type: "Doa Terbaik ✨",
-                img: "foto2.jpg",
-                text: "Semoga semua impianmu di tahun ini tercapai. Aamiin."
-            },
-            {
-                type: "Let's Rock! 🎸",
-                img: "foto_ultah_final.jpg",
-                text: "Tahun ini adalah milikmu. Semangat terus! 🎂"
-            }
+            { type: "Hai Kamu! 👋", text: "Selamat Ulang Tahun! Semoga harimu menyenangkan.", img: "foto1.jpg" },
+            { type: "Terima Kasih 🙏", text: "Sudah menjadi teman yang baik.", img: "" },
+            { type: "Harapan ✨", text: "Semoga tahun ini penuh berkah.", img: "foto2.jpg" },
+            { type: "Let's Go! 🚀", text: "Siap untuk petualangan baru?", img: "foto_akhir.jpg" }
         ];
 
-        const gift = document.getElementById('gift');
+        const giftCube = document.getElementById('giftCube');
         const cardArea = document.getElementById('cardArea');
-        const worldContainer = document.getElementById('world-container');
-        const blowButton = document.getElementById('blowButton');
-        let isGiftOpened = false;
-        let cardElements = []; // Menyimpan elemen kartu DOM
+        const world = document.getElementById('world-container');
+        let isOpened = false;
+        let cardEls = [];
 
-        // --- 1. Persiapan: Render semua kartu di awal (Stack) ---
+        // 1. INIT CARDS (STACK)
         function initCards() {
-            // Kita render kartu secara terbalik (reverse) agar index 0 ada di paling atas tumpukan (z-index tertinggi)
-            // Atau render biasa, tapi atur z-index manual.
-            
             cardsData.forEach((data, index) => {
-                const card = document.createElement('div');
-                card.classList.add('card');
-                // Z-index: Kartu pertama (0) paling tinggi
-                card.style.zIndex = cardsData.length - index; 
-                
-                // HTML Kartu
-                const imgHTML = data.img ? `<img src="${data.img}" alt="Foto">` : '';
-                card.innerHTML = `
-                    <h3>${data.type}</h3>
-                    ${imgHTML}
-                    <p>${data.text}</p>
-                    <div class="tap-hint">Tap untuk lanjut &rarr;</div>
-                `;
-
-                // Event Listener: Klik kartu ini untuk membuangnya
-                card.onclick = () => handleCardClick(index);
-
-                cardArea.appendChild(card);
-                cardElements.push(card);
+                const el = document.createElement('div');
+                el.className = 'card';
+                el.style.zIndex = cardsData.length - index;
+                // Render content
+                const img = data.img ? `<img src="${data.img}">` : '';
+                el.innerHTML = `<h3>${data.type}</h3>${img}<p>${data.text}</p><div style="font-size:0.8em; color:#888">(Tap untuk lanjut)</div>`;
+                el.onclick = () => nextCard(index);
+                cardArea.appendChild(el);
+                cardEls.push(el);
             });
         }
+        initCards();
 
-        initCards(); // Jalankan saat loading
-
-        // --- 2. Buka Kado ---
+        // 2. OPEN GIFT
         function openGift() {
-            if (isGiftOpened) return;
-            isGiftOpened = true;
-
-            gift.classList.add('shaking');
+            if (isOpened) return;
+            isOpened = true;
+            giftCube.parentElement.classList.add('shaking'); // Shake container
 
             setTimeout(() => {
-                gift.classList.remove('shaking');
-                gift.classList.add('open');
+                giftCube.parentElement.classList.remove('shaking');
+                giftCube.classList.add('open'); // Open Lid
                 
-                // Munculkan semua kartu dari dalam kado
+                // Pop Cards
                 setTimeout(() => {
-                    revealCards();
-                }, 600);
+                    cardEls.forEach((el, i) => {
+                        setTimeout(() => {
+                            el.classList.add('active');
+                            // Slight rotation for messy stack look
+                            el.style.transform = `translateY(0) rotate(${(Math.random()*10)-5}deg)`;
+                        }, i * 200);
+                    });
+                }, 500);
             }, 1000);
         }
 
-        // --- 3. Animasi Kartu Muncul (Pop Up dari Kado) ---
-        function revealCards() {
-            cardElements.forEach((card, index) => {
-                setTimeout(() => {
-                    card.classList.add('active');
-                    // Beri sedikit rotasi acak agar terlihat seperti tumpukan natural
-                    const randomRotate = (Math.random() * 10) - 5; // -5 sampai 5 derajat
-                    card.style.transform = `translateY(0) rotate(${randomRotate}deg)`;
-                }, index * 100); // Delay bertingkat
-            });
-        }
+        // 3. NEXT CARD
+        function nextCard(index) {
+            const el = cardEls[index];
+            el.classList.add('swiped'); // Buang kartu
 
-        // --- 4. Logika Pindah Kartu (Swipe Out) ---
-        function handleCardClick(index) {
-            // Hanya izinkan klik pada kartu paling atas yang belum di-swipe
-            // Kita cek apakah kartu sebelumnya sudah hilang. 
-            // Namun karena z-index, user pasti klik yang paling atas yang terlihat.
-            
-            const currentCard = cardElements[index];
-
-            // Animasi buang kartu (Swipe Right/Left)
-            // Kita gunakan !important di CSS class 'swiped' untuk override transform sebelumnya
-            currentCard.classList.add('swiped');
-
-            // Cek apakah ini kartu terakhir?
             if (index === cardsData.length - 1) {
-                setTimeout(() => {
-                    finishCards();
-                }, 800);
+                setTimeout(startTransition, 800);
             }
         }
 
-        // --- 5. Selesai Kartu -> Pindah ke Kue ---
-        function finishCards() {
-            worldContainer.style.transform = 'translateY(-100vh)';
+        // 4. TRANSITION (SPIN & DROP)
+        function startTransition() {
+            // Tambahkan class untuk memutar dunia dan turun ke bawah
+            world.classList.add('world-spin-drop');
+            
             setTimeout(() => {
                 document.getElementById('wishText').classList.add('show');
-                initBlowFeature();
-            }, 1500);
+                initBlow();
+            }, 2500); // Tunggu animasi selesai
         }
 
-        // --- 6. Fitur Tiup Lilin (Sama seperti sebelumnya) ---
-        function initBlowFeature() {
-            let blowTimer;
-            const requiredHoldTime = 2000;
+        // 5. BLOW CANDLES
+        function initBlow() {
+            const btn = document.getElementById('blowButton');
             const flames = document.querySelectorAll('.flame');
             const smokes = document.querySelectorAll('.smoke');
+            let timer;
 
-            function startBlowing(e) {
+            const start = (e) => {
                 e.preventDefault();
-                blowButton.style.transform = 'scale(0.95)';
-                flames.forEach(f => f.style.animationDuration = '0.1s');
-
-                blowTimer = setTimeout(() => {
+                btn.style.transform = "translateZ(50px) scale(0.9)";
+                flames.forEach(f => f.style.transform = "scale(1.2)"); // Api membesar siap ditiup
+                timer = setTimeout(() => {
+                    // Success
                     flames.forEach(f => f.classList.add('out'));
                     smokes.forEach(s => s.classList.add('rise'));
-                    blowButton.style.display = 'none';
+                    btn.style.display = 'none';
                     document.getElementById('wishText').style.opacity = 0;
                     document.getElementById('finalMsg').style.opacity = 1;
-                }, requiredHoldTime);
-            }
+                }, 2000);
+            };
 
-            function stopBlowing() {
-                clearTimeout(blowTimer);
-                blowButton.style.transform = 'scale(1)';
-                flames.forEach(f => {
-                    if (!f.classList.contains('out')) {
-                       f.style.animationDuration = '0.5s'; 
-                    }
-                });
-            }
+            const end = () => {
+                clearTimeout(timer);
+                btn.style.transform = "translateZ(50px) scale(1)";
+                flames.forEach(f => f.style.transform = "scale(1)");
+            };
 
-            blowButton.addEventListener('mousedown', startBlowing);
-            blowButton.addEventListener('mouseup', stopBlowing);
-            blowButton.addEventListener('mouseleave', stopBlowing);
-            blowButton.addEventListener('touchstart', startBlowing);
-            blowButton.addEventListener('touchend', stopBlowing);
+            btn.addEventListener('mousedown', start);
+            btn.addEventListener('touchstart', start);
+            btn.addEventListener('mouseup', end);
+            btn.addEventListener('touchend', end);
         }
 
     </script>
