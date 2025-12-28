@@ -1,240 +1,149 @@
+/* ================= GLOBAL & VARIABEL ================= */
+:root {
+    --gold: #ffd700;
+    --red: #e74c3c;
+    --ribbon: #f1c40f;
+    --bg-dark: #1a1a2e;
+    --vanilla: #f0e4d0;
+    --vanilla-light: #fdf5e8;
+    --chocolate: #553c13;
+    --chocolate-light: #6a4b18;
+    --chocolate-dark: #3d2b0e;
+}
 
-        :root {
-            --gold: #ffd700;
-            --red: #e74c3c;
-            --ribbon: #f1c40f;
-            --bg-dark: #1a1a2e;
-        }
+body {
+    margin: 0; padding: 0;
+    background-color: var(--bg-dark);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    overflow: hidden; touch-action: none; perspective: 1000px;
+}
 
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-dark);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: white;
-            overflow: hidden;
-            touch-action: none;
-        }
+#world-container {
+    width: 100%; height: 100vh; position: relative;
+    transform-style: preserve-3d;
+    transition: transform 1.0s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+}
 
-        #world-container {
-            width: 100%;
-            height: 200vh;
-            position: relative;
-            transition: transform 1.5s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
+.falling-effect { transform: translateY(-100vh); filter: blur(5px); }
+.landed-impact { transform: translateY(-100vh); filter: blur(0); }
 
-        /* --- BAGIAN 1: KOTAK KADO (Atas) --- */
-        .gift-section {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: radial-gradient(circle, #2a2a4e 0%, #1a1a2e 100%);
-            position: relative;
-            z-index: 5;
-        }
+section {
+    width: 100%; height: 100vh; position: absolute; left: 0;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    backface-visibility: hidden;
+}
 
-        /* Desain KOTAK KADO */
-        .gift-container {
-            position: relative;
-            width: 180px;
-            height: 180px;
-            cursor: pointer;
-            margin-top: 50px;
-        }
+/* ================= BAGIAN 1: KADO 3D ================= */
+.gift-section { top: 0; z-index: 10; background: radial-gradient(circle, #2a2a4e 0%, #1a1a2e 100%); }
+.gift-container { position: relative; width: 180px; height: 180px; cursor: pointer; margin-top: 50px; transform-style: preserve-3d; }
+.gift-box { position: absolute; bottom: 0; width: 100%; height: 140px; background: var(--red); border-radius: 4px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+.gift-box::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 30px; background: var(--ribbon); transform: translateX(-50%); border-left: 2px solid rgba(0,0,0,0.1); border-right: 2px solid rgba(0,0,0,0.1); }
+.gift-lid { position: absolute; top: 0; left: -10px; width: 200px; height: 50px; background: #c0392b; border-radius: 4px; z-index: 2; transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+.gift-lid::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 30px; background: var(--ribbon); transform: translateX(-50%); }
+.bow { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); width: 60px; height: 30px; z-index: 3; }
+.bow::before, .bow::after { content: ''; position: absolute; top: 0; width: 40px; height: 40px; border: 8px solid var(--ribbon); border-radius: 50%; border-bottom-color: transparent; border-left-color: transparent; }
+.bow::before { left: -25px; transform: rotate(45deg); }
+.bow::after { right: -25px; transform: rotate(-45deg); }
+.shaking { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) infinite both; }
+.open .gift-lid { transform: translateY(-80px) rotate(-15deg) translateX(20px); }
+.open .bow { opacity: 0.8; }
+.gift-glow { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; box-shadow: 0 0 0 0 var(--gold); opacity: 0; transition: opacity 0.5s, box-shadow 1s; z-index: 1; }
+.open .gift-glow { opacity: 1; box-shadow: 0 0 150px 80px var(--gold); }
 
-        /* Badan Kotak */
-        .gift-box {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 140px;
-            background: var(--red);
-            border-radius: 4px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-        }
-        
-        /* Pita Vertikal di Badan */
-        .gift-box::before {
-            content: ''; position: absolute;
-            left: 50%; top: 0; bottom: 0;
-            width: 30px; background: var(--ribbon);
-            transform: translateX(-50%);
-            border-left: 2px solid rgba(0,0,0,0.1);
-            border-right: 2px solid rgba(0,0,0,0.1);
-        }
+/* AREA KARTU */
+.card-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: flex; justify-content: center; align-items: center; z-index: 10; overflow: hidden; perspective: 1000px; }
+.card { position: absolute; width: 80%; max-width: 380px; height: 60vh; max-height: 550px; background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%); border-radius: 20px; border: 4px solid var(--gold); padding: 20px; box-sizing: border-box; text-align: center; color: #333; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transform: translateY(100vh) scale(0.5); opacity: 0; transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s; pointer-events: auto; cursor: pointer; }
+.card img { width: 100%; height: auto; max-height: 50%; object-fit: cover; border-radius: 10px; background: #ddd; margin-bottom: 15px; }
+.card h3 { margin: 10px 0; color: #c0392b; font-size: 1.5em; }
+.card.active { opacity: 1; }
+.card.swiped { transform: translateX(120%) rotate(20deg) !important; opacity: 0; pointer-events: none; transition: transform 0.6s ease-in, opacity 0.4s; }
 
-        /* Tutup Kotak */
-        .gift-lid {
-            position: absolute;
-            top: 0; left: -10px; /* Lebih lebar dari badan */
-            width: 200px;
-            height: 50px;
-            background: #c0392b; /* Merah lebih tua */
-            border-radius: 4px;
-            z-index: 2;
-            transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
+/* ================= BAGIAN 2: KUE (CAKE) ================= */
+.cake-section {
+    top: 100vh;
+    background: transparent;
+    position: relative; /* Penting untuk positioning elemen di dalamnya */
+}
 
-        /* Pita di Tutup (Horizontal & Vertikal) */
-        .gift-lid::before { /* Vertikal */
-            content: ''; position: absolute;
-            left: 50%; top: 0; bottom: 0;
-            width: 30px; background: var(--ribbon);
-            transform: translateX(-50%);
-        }
-        .gift-lid::after { /* Horizontal (Efek samping) */
-            content: ''; position: absolute;
-            top: 50%; left: 0; right: 0;
-            height: 0; 
-            /* Tidak full horizontal karena 2D, cukup hiasan pita atas */
-        }
+/* Container Kue */
+.cake-container {
+    position: relative;
+    width: 250px; height: 200px;
+    z-index: 10; /* Kue di bawah teks/tombol */
+}
+.cake { position: absolute; width: 250px; height: 200px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.plate { width: 270px; height: 110px; position: absolute; bottom: -10px; left: -10px; background-color: #ccc; border-radius: 50%; box-shadow: 0 2px 0 #b3b3b3, 0 4px 0 #b3b3b3, 0 5px 40px rgba(0, 0, 0, 0.5); }
+.cake > * { position: absolute; }
+.layer { position: absolute; display: block; width: 250px; height: 100px; border-radius: 50%; background-color: var(--chocolate); box-shadow: 0 2px 0px var(--chocolate-light), 0 4px 0px var(--chocolate-dark), 0 6px 0px var(--chocolate-dark), 0 8px 0px var(--chocolate-dark), 0 10px 0px var(--chocolate-dark), 0 12px 0px var(--chocolate-dark), 0 14px 0px var(--chocolate-dark), 0 16px 0px var(--chocolate-dark), 0 18px 0px var(--chocolate-dark), 0 20px 0px var(--chocolate-dark), 0 22px 0px var(--chocolate-dark), 0 24px 0px var(--chocolate-dark), 0 26px 0px var(--chocolate-dark), 0 28px 0px var(--chocolate-dark), 0 30px 0px var(--chocolate-dark); }
+.layer-top { top: 0px; } .layer-middle { top: 33px; } .layer-bottom { top: 66px; }
+.icing { top: 2px; left: 5px; background-color: var(--vanilla); width: 240px; height: 90px; border-radius: 50%; z-index: 1; }
+.icing::before { content: ""; position: absolute; top: 4px; right: 5px; bottom: 6px; left: 5px; background-color: var(--vanilla-light); box-shadow: 0 0 4px var(--vanilla-light), 0 0 4px var(--vanilla-light); border-radius: 50%; z-index: 1; }
+.drip { display: block; width: 50px; height: 60px; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; background-color: var(--vanilla); z-index: 2; }
+.drip1 { top: 53px; left: 5px; transform: skewY(15deg); height: 48px; width: 40px; }
+.drip2 { top: 69px; left: 181px; transform: skewY(-15deg); }
+.drip3 { top: 54px; left: 90px; width: 80px; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; }
+.candle { background-color: #7B020B; width: 16px; height: 50px; border-radius: 8px / 4px; top: -20px; left: 50%; margin-left: -8px; z-index: 10; }
+.candle::before { content: ""; position: absolute; top: 0; left: 0; width: 16px; height: 8px; border-radius: 50%; background-color: #9e030e; }
+.flame { position: absolute; background-color: orange; width: 15px; height: 35px; border-radius: 10px 10px 10px 10px / 25px 25px 10px 10px; top: -34px; left: 50%; margin-left: -7.5px; z-index: 10; box-shadow: 0 0 10px rgba(255, 165, 0, 0.5), 0 0 20px rgba(255, 165, 0, 0.5), 0 0 60px rgba(255, 165, 0, 0.5), 0 0 80px rgba(255, 165, 0, 0.5); transform-origin: 50% 90%; animation: flicker 1s ease-in-out alternate infinite; }
+.smoke { width: 10px; height: 20px; background: #ccc; border-radius: 50%; position: absolute; top: -25px; left: 50%; margin-left: -5px; opacity: 0; pointer-events: none; }
 
-        /* Kuncir Pita (Bow) */
-        .bow {
-            position: absolute;
-            top: -30px; left: 50%;
-            transform: translateX(-50%);
-            width: 60px; height: 30px;
-            z-index: 3;
-        }
-        .bow::before, .bow::after {
-            content: ''; position: absolute;
-            top: 0; width: 40px; height: 40px;
-            border: 8px solid var(--ribbon);
-            border-radius: 50%;
-            border-bottom-color: transparent;
-            border-left-color: transparent;
-        }
-        .bow::before { left: -25px; transform: rotate(45deg); }
-        .bow::after { right: -25px; transform: rotate(-45deg); }
+/* === PERBAIKAN UI (TOMBOL & PESAN) === */
 
-        /* Animasi Buka Kado */
-        .shaking { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) infinite both; }
-        
-        .open .gift-lid {
-            /* Tutup terangkat dan berputar sedikit */
-            transform: translateY(-80px) rotate(-15deg) translateX(20px);
-        }
-        .open .bow {
-             /* Pita ikut tutup */
-             opacity: 0.8; 
-        }
+/* Tombol diposisikan di bawah layar (relative terhadap section) */
+#blowButton {
+    position: absolute;
+    bottom: 15%; /* Jarak 15% dari bawah layar (aman) */
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px 40px;
+    font-size: 1.2em;
+    background: var(--gold);
+    color: #553c13; /* Warna teks agar kontras */
+    border: none;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+    z-index: 100; /* Paling atas */
+    white-space: nowrap;
+}
 
-        /* Cahaya keluar */
-        .gift-glow {
-            position: absolute; top: 50%; left: 50%;
-            width: 10px; height: 10px;
-            box-shadow: 0 0 0 0 var(--gold);
-            opacity: 0; transition: opacity 0.5s, box-shadow 1s;
-            z-index: 1;
-        }
-        .open .gift-glow {
-            opacity: 1;
-            box-shadow: 0 0 150px 80px var(--gold);
-        }
+/* Teks Wish diposisikan di atas kue */
+.wish-text {
+    position: absolute;
+    top: 15%; /* Jarak 15% dari atas layar */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2em;
+    color: white;
+    opacity: 0;
+    transition: opacity 1s;
+    white-space: nowrap;
+    z-index: 100;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+.wish-text.show { opacity: 1; }
 
-        /* --- AREA KARTU TUMPUK (STACK) --- */
-        .card-area {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; /* Supaya klik tembus ke kado dulu */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-            overflow: hidden;
-            perspective: 1000px; /* Efek 3D */
-        }
+/* Teks Akhir */
+.final-message {
+    position: absolute;
+    top: 20%; /* Posisi di tengah agak atas */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2.5em;
+    color: var(--gold);
+    opacity: 0;
+    transition: opacity 2s;
+    width: 100%;
+    text-align: center;
+    z-index: 101;
+    pointer-events: none;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
 
-        .card {
-            position: absolute;
-            /* UKURAN BESAR 80% */
-            width: 80%;
-            max-width: 380px; 
-            height: 60vh; /* Menggunakan VH agar proporsional */
-            max-height: 550px;
-            
-            background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
-            border-radius: 20px;
-            border: 4px solid var(--gold);
-            padding: 20px;
-            box-sizing: border-box;
-            text-align: center;
-            color: #333;
-            
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            
-            /* Hidden initially */
-            transform: translateY(100vh) scale(0.5); 
-            opacity: 0;
-            transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s;
-            pointer-events: auto; /* Kartu bisa diklik */
-            cursor: pointer;
-        }
-        
-        /* Gambar dalam kartu */
-        .card img {
-            width: 100%;
-            height: auto;
-            max-height: 50%; /* Membatasi tinggi gambar */
-            object-fit: cover;
-            border-radius: 10px;
-            background: #ddd; 
-            margin-bottom: 15px;
-        }
-
-        .card h3 { margin: 10px 0; color: #c0392b; font-size: 1.5em; }
-        .card p { font-size: 1.1em; line-height: 1.4; flex-grow: 1; display: flex; align-items: center; justify-content: center;}
-        .tap-hint { font-size: 0.9em; color: #888; margin-top: 10px; font-weight: bold; }
-
-        /* State ketika kartu muncul dari kado */
-        .card.active {
-            opacity: 1;
-            /* Transform diatur via inline style JS untuk efek tumpukan acak */
-        }
-
-        /* Animasi kartu dibuang/pindah (Swipe effect) */
-        .card.swiped {
-            transform: translateX(120%) rotate(20deg) !important;
-            opacity: 0;
-            pointer-events: none;
-            transition: transform 0.6s ease-in, opacity 0.4s;
-        }
-
-        /* --- BAGIAN 2: KUE (Bawah) - (Kode lama dipertahankan) --- */
-        .cake-section {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: radial-gradient(circle, #3e2a4e 0%, #1a1a2e 100%);
-            position: relative;
-        }
-        .cake-container { position: relative; margin-top: 50px; }
-        .cake-base { width: 200px; height: 60px; background: #f8bbd0; border-radius: 10px 10px 0 0; position: relative; }
-        .cake-middle { width: 180px; height: 50px; background: #f48fb1; border-radius: 10px 10px 0 0; margin: 0 auto; }
-        .cake-top { width: 150px; height: 40px; background: #ec407a; border-radius: 10px 10px 0 0; margin: 0 auto; position: relative; }
-        .candles-container { display: flex; justify-content: center; gap: 15px; position: absolute; top: -30px; width: 100%; }
-        .candle { width: 10px; height: 30px; background: white; border-radius: 3px; position: relative; }
-        .flame { width: 14px; height: 20px; background: orange; border-radius: 50% 50% 20% 20%; position: absolute; top: -20px; left: -2px; animation: flicker 0.5s infinite alternate; box-shadow: 0 0 10px orange, 0 0 20px yellow; }
-        .smoke { width: 10px; height: 20px; background: #ccc; border-radius: 50%; position: absolute; top: -25px; left: 0; opacity: 0; }
-        #blowButton { margin-top: 40px; padding: 15px 40px; font-size: 1.2em; background: var(--gold); color: #8b4513; border: none; border-radius: 30px; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4); transition: transform 0.1s; user-select: none; }
-        #blowButton:active { transform: scale(0.95); }
-        .wish-text { font-size: 2em; margin-bottom: 20px; opacity: 0; transition: opacity 1s;}
-        .wish-text.show { opacity: 1; }
-        .final-message { position: absolute; top: 20%; width: 100%; text-align: center; font-size: 2.5em; color: var(--gold); opacity: 0; transition: opacity 2s; pointer-events: none;}
-
-        @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
-        @keyframes flicker { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(0.9, 1.1); opacity: 0.8; } }
-        @keyframes smokeRise { 0% { opacity: 0.8; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-30px) scale(2); } }
-        .flame.out { animation: none; opacity: 0; }
-        .smoke.rise { animation: smokeRise 1s forwards; }
-
-    
+@keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
+@keyframes flicker { 0% { transform: skewX(5deg); box-shadow: 0 0 10px rgba(255, 165, 0, 0.2), 0 0 20px rgba(255, 165, 0, 0.2), 0 0 60px rgba(255, 165, 0, 0.2), 0 0 80px rgba(255, 165, 0, 0.2); } 25% { transform: skewX(-5deg); box-shadow: 0 0 10px rgba(255, 165, 0, 0.5), 0 0 20px rgba(255, 165, 0, 0.5), 0 0 60px rgba(255, 165, 0, 0.5), 0 0 80px rgba(255, 165, 0, 0.5); } 50% { transform: skewX(10deg); box-shadow: 0 0 10px rgba(255, 165, 0, 0.3), 0 0 20px rgba(255, 165, 0, 0.3), 0 0 60px rgba(255, 165, 0, 0.3), 0 0 80px rgba(255, 165, 0, 0.3); } 75% { transform: skewX(-10deg); box-shadow: 0 0 10px rgba(255, 165, 0, 0.4), 0 0 20px rgba(255, 165, 0, 0.4), 0 0 60px rgba(255, 165, 0, 0.4), 0 0 80px rgba(255, 165, 0, 0.4); } 100% { transform: skewX(5deg); box-shadow: 0 0 10px rgba(255, 165, 0, 0.5), 0 0 20px rgba(255, 165, 0, 0.5), 0 0 60px rgba(255, 165, 0, 0.5), 0 0 80px rgba(255, 165, 0, 0.5); } }
+@keyframes smokeRise { 100% { opacity: 0; transform: translateY(-40px) scale(2); } }
+.flame.out { display: none; }
+.smoke.rise { animation: smokeRise 1s forwards; opacity: 0.8; }
