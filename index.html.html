@@ -3,16 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>3D Birthday Experience</title>
+    <title>Birthday Gift & Cake</title>
     <style>
         :root {
+            /* Warna Global */
             --gold: #ffd700;
             --red: #e74c3c;
             --ribbon: #f1c40f;
             --bg-dark: #1a1a2e;
-            --cake-base: #f8bbd0;
-            --cake-mid: #f48fb1;
-            --cake-top: #ec407a;
+            
+            /* Warna Kue Baru */
+            --vanilla: #f0e4d0;
+            --chocolate: #553c13;
+            --chocolate-light: #6a4b18; /* Lighten 5% */
+            --chocolate-dark: #3d2b0e;  /* Darken ~9% */
         }
 
         body {
@@ -23,16 +27,21 @@
             color: white;
             overflow: hidden;
             touch-action: none;
-            perspective: 1200px; /* Memberikan kedalaman 3D pada layar */
+            perspective: 1200px;
         }
 
-        /* Container Dunia yang akan berputar */
+        /* --- CONTAINER DUNIA (TRANSISI) --- */
         #world-container {
             width: 100%;
             height: 100vh;
             position: relative;
             transform-style: preserve-3d;
             transition: transform 2.5s cubic-bezier(0.65, 0.05, 0.36, 1);
+        }
+
+        /* Animasi Transisi: Turun + Putar */
+        .world-spin-drop {
+            transform: translateY(-100vh) rotateZ(360deg) !important;
         }
 
         section {
@@ -47,227 +56,206 @@
             backface-visibility: hidden;
         }
 
-        /* --- SECTION 1: KADO (ATAS) --- */
+        /* ================= BAGIAN 1: KADO 3D (TETAP SAMA) ================= */
         .gift-section {
             top: 0;
             z-index: 10;
         }
 
-        /* --- 3D CUBE SYSTEM --- */
         .cube-scene {
-            width: 200px;
-            height: 200px;
-            perspective: 600px;
-            margin-top: 50px;
+            width: 200px; height: 200px; perspective: 600px; margin-top: 50px;
         }
-
         .cube {
-            width: 100%;
-            height: 100%;
-            position: relative;
+            width: 100%; height: 100%; position: relative;
             transform-style: preserve-3d;
-            transform: rotateX(-20deg) rotateY(45deg); /* Sudut pandang awal */
+            transform: rotateX(-20deg) rotateY(45deg);
             transition: transform 0.5s;
             cursor: pointer;
         }
-
-        /* Animasi Kado Goyang */
-        .shaking .cube {
-            animation: shake3d 0.5s infinite;
-        }
-
-        .cube__face {
-            position: absolute;
-            width: 200px;
-            height: 200px;
-            background: var(--red);
-            border: 2px solid #c0392b;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
-        }
-
-        /* Posisi Sisi Kotak */
+        .shaking .cube { animation: shake3d 0.5s infinite; }
+        
+        /* Cube Faces */
+        .cube__face { position: absolute; width: 200px; height: 200px; background: var(--red); border: 2px solid #c0392b; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 20px rgba(0,0,0,0.2); }
         .cube__face--front  { transform: rotateY(  0deg) translateZ(100px); }
         .cube__face--right  { transform: rotateY( 90deg) translateZ(100px); }
         .cube__face--back   { transform: rotateY(180deg) translateZ(100px); }
         .cube__face--left   { transform: rotateY(-90deg) translateZ(100px); }
         .cube__face--bottom { transform: rotateX(-90deg) translateZ(100px); background: #a93226; }
         
-        /* Pita Kado (Ribbon) */
+        /* Ribbon & Lid */
         .ribbon-v { position: absolute; width: 40px; height: 100%; background: var(--ribbon); }
         .ribbon-h { position: absolute; width: 100%; height: 40px; background: var(--ribbon); }
-
-        /* Tutup Kado (Lid) - Objek 3D Terpisah */
-        .lid-container {
-            position: absolute;
-            width: 210px; height: 50px; /* Lebih lebar sedikit */
-            top: -50px; left: -5px;
-            transform-style: preserve-3d;
-            transform-origin: back; /* Engsel di belakang */
-            transition: transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
-        }
-        
-        /* Jika dibuka */
-        .open .lid-container {
-            transform: rotateX(120deg);
-        }
-
-        .lid__face {
-            position: absolute;
-            background: #e74c3c;
-            border: 2px solid #c0392b;
-        }
+        .lid-container { position: absolute; width: 210px; height: 50px; top: -50px; left: -5px; transform-style: preserve-3d; transform-origin: back; transition: transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1); }
+        .open .lid-container { transform: rotateX(120deg); }
+        .lid__face { position: absolute; background: #e74c3c; border: 2px solid #c0392b; }
         .lid--top   { width: 210px; height: 210px; transform: rotateX(90deg) translateZ(25px); top: -80px; }
         .lid--front { width: 210px; height: 50px; transform: rotateY(0deg) translateZ(105px); top: 25px; }
         .lid--back  { width: 210px; height: 50px; transform: rotateY(180deg) translateZ(105px); top: 25px; }
         .lid--right { width: 210px; height: 50px; transform: rotateY(90deg) translateZ(105px); top: 25px; left: 0; }
         .lid--left  { width: 210px; height: 50px; transform: rotateY(-90deg) translateZ(105px); top: 25px; left: 0; }
+        .bow-knot { position: absolute; top: -110px; left: 85px; width: 40px; height: 40px; background: var(--ribbon); transform: rotateX(90deg) translateZ(0); border-radius: 50%; z-index: 20; }
 
-        /* Kuncir Pita 3D Sederhana */
-        .bow-knot {
-            position: absolute; top: -110px; left: 85px;
-            width: 40px; height: 40px; background: var(--ribbon);
-            transform: rotateX(90deg) translateZ(0);
-            border-radius: 50%;
-            z-index: 20;
-        }
-
-        /* --- AREA KARTU --- */
-        .card-area {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100vh;
-            display: flex; justify-content: center; align-items: center;
-            pointer-events: none;
-            perspective: 1000px;
-            z-index: 20;
-        }
-
-        .card {
-            position: absolute;
-            width: 80%; max-width: 360px; height: 60vh;
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: flex; flex-direction: column; justify-content: space-between;
-            /* Hidden State */
-            transform: translateY(100vh) rotateX(20deg) scale(0.8);
-            opacity: 0;
-            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: auto;
-        }
+        /* Card Styles */
+        .card-area { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; display: flex; justify-content: center; align-items: center; pointer-events: none; perspective: 1000px; z-index: 20; }
+        .card { position: absolute; width: 80%; max-width: 360px; height: 60vh; background: white; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; justify-content: space-between; transform: translateY(100vh) rotateX(20deg) scale(0.8); opacity: 0; transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: auto; }
         .card img { width: 100%; height: auto; max-height: 50%; object-fit: cover; border-radius: 10px; background: #ddd; margin-bottom: 10px;}
         .card h3 { color: var(--red); margin: 5px 0;}
         .card.active { transform: translateY(0) rotateX(0) scale(1); opacity: 1; }
         .card.swiped { transform: translateX(120vw) rotate(45deg) !important; opacity: 0; pointer-events: none; transition: 0.5s; }
 
-
-        /* --- SECTION 2: KUE 3D (BAWAH) --- */
+        /* ================= BAGIAN 2: KUE CSS BARU ================= */
         .cake-section {
-            top: 100vh; /* Ada di bawah layar */
-            background: transparent;
+            top: 100vh;
+            /* Pastikan kue terlihat flat/tegak lurus terhadap layar setelah transisi */
+            transform-style: flat; 
         }
 
-        /* Struktur Kue 3D (Menggunakan tumpukan div 3D) */
-        .cake-3d {
+        .cake-container {
             position: relative;
-            transform-style: preserve-3d;
-            transform: rotateX(-20deg) rotateY(30deg); /* Isometrik */
+            width: 250px;
+            height: 200px;
+            /* Scaling agar pas di HP */
+            transform: scale(0.8); 
         }
+
+        .cake {
+            position: absolute;
+            width: 250px;
+            height: 200px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .plate {
+            width: 270px;
+            height: 110px;
+            position: absolute;
+            bottom: -10px;
+            left: -10px;
+            background-color: #ccc;
+            border-radius: 50%;
+            box-shadow:
+                0 2px 0 #b3b3b3,
+                0 4px 0 #b3b3b3,
+                0 5px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .cake > * { position: absolute; }
 
         .layer {
             position: absolute;
-            left: 50%;
-            transform-style: preserve-3d;
-            transform: translateX(-50%);
+            display: block;
+            width: 250px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: var(--chocolate);
+            /* Konversi Loop SCSS box-shadow ke CSS Manual */
+            box-shadow:
+                0 2px 0px var(--chocolate-light),
+                0 4px 0px var(--chocolate-dark),
+                0 6px 0px var(--chocolate-dark),
+                0 8px 0px var(--chocolate-dark),
+                0 10px 0px var(--chocolate-dark),
+                0 12px 0px var(--chocolate-dark),
+                0 14px 0px var(--chocolate-dark),
+                0 16px 0px var(--chocolate-dark),
+                0 18px 0px var(--chocolate-dark),
+                0 20px 0px var(--chocolate-dark),
+                0 22px 0px var(--chocolate-dark),
+                0 24px 0px var(--chocolate-dark),
+                0 26px 0px var(--chocolate-dark),
+                0 28px 0px var(--chocolate-dark),
+                0 30px 0px var(--chocolate-dark);
         }
 
-        /* Fungsi Membuat Kotak 3D untuk Layer Kue */
-        .box-3d {
-            transform-style: preserve-3d;
-        }
-        .box-3d div { position: absolute; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); }
-        .box-3d .top { transform: rotateX(90deg) translateZ(50px); }
-        .box-3d .front { transform: translateZ(50px); }
-        .box-3d .right { transform: rotateY(90deg) translateZ(50px); }
-        .box-3d .left { transform: rotateY(-90deg) translateZ(50px); }
-        .box-3d .back { transform: rotateY(180deg) translateZ(50px); }
+        .layer-top { top: 0px; }
+        .layer-middle { top: 33px; }
+        .layer-bottom { top: 66px; }
 
-        /* Styling Layer Bawah */
-        .layer-bottom { bottom: 0; width: 200px; height: 80px; }
-        .layer-bottom div { width: 200px; height: 80px; background: var(--cake-base); }
-        .layer-bottom .top { height: 200px; transform: rotateX(90deg) translateZ(40px); background: #fce4ec; } /* Top face adjust */
-        .layer-bottom .front, .layer-bottom .back, .layer-bottom .right, .layer-bottom .left { transform-origin: center; }
-        /* Manual adjustment for CSS Cube size without complex JS, using generic face approach below for simplicity */
+        .icing {
+            top: 2px;
+            left: 5px;
+            background-color: var(--vanilla);
+            width: 240px;
+            height: 90px;
+            border-radius: 50%;
+            z-index: 2;
+        }
         
-        /* SIMPLIFIED 3D CAKE (Square Tiers) */
-        .cake-tier {
+        .icing::before {
+            content: "";
             position: absolute;
+            top: 4px; right: 5px; bottom: 6px; left: 5px;
+            background-color: #f4ebd9; /* Lighten vanilla 3% */
+            box-shadow: 0 0 4px #f6f0df, 0 0 4px #f6f0df, 0 0 4px #f6f0df;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .drip {
+            display: block;
+            width: 50px;
+            height: 60px;
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
+            background-color: var(--vanilla);
+            z-index: 2;
+        }
+
+        .drip1 { top: 53px; left: 5px; transform: skewY(15deg); height: 48px; width: 40px; }
+        .drip2 { top: 69px; left: 181px; transform: skewY(-15deg); }
+        .drip3 { top: 54px; left: 90px; width: 80px; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; }
+
+        .candle {
+            background-color: #7B020B;
+            width: 16px;
+            height: 50px;
+            border-radius: 8px / 4px;
+            top: -20px;
             left: 50%;
-            transform: translateX(-50%);
-            transform-style: preserve-3d;
+            margin-left: -8px;
+            z-index: 10;
         }
-        
-        .tier-1 { bottom: 0; width: 200px; height: 80px; z-index: 1; }
-        .tier-2 { bottom: 80px; width: 150px; height: 70px; z-index: 2; }
-        .tier-3 { bottom: 150px; width: 100px; height: 60px; z-index: 3; }
-
-        .face { position: absolute; opacity: 0.9; }
-        .face-front { width: 100%; height: 100%; background: inherit; transform: translateZ(var(--depth)); }
-        .face-back { width: 100%; height: 100%; background: inherit; transform: rotateY(180deg) translateZ(var(--depth)); }
-        .face-right { width: 100%; height: 100%; background: inherit; right: 0; transform: rotateY(90deg) translateZ(calc(var(--w) / 2)); width: var(--depth-side); }
-        .face-left { width: 100%; height: 100%; background: inherit; left: 0; transform: rotateY(-90deg) translateZ(calc(var(--w) / 2)); width: var(--depth-side); }
-        .face-top { width: 100%; height: var(--w); background: #fff0f5; top: 0; transform: rotateX(90deg) translateZ(calc(var(--w) / 2)); }
-
-        /* Warna Tier */
-        .tier-1 { --w: 200px; --depth: 100px; --depth-side: 200px; background: var(--cake-base); }
-        .tier-2 { --w: 150px; --depth: 75px; --depth-side: 150px; background: var(--cake-mid); }
-        .tier-3 { --w: 100px; --depth: 50px; --depth-side: 100px; background: var(--cake-top); }
-
-        /* Lilin 3D */
-        .candles {
-            position: absolute; bottom: 210px; width: 100%; text-align: center;
-            transform-style: preserve-3d; z-index: 10;
+        .candle::before {
+            content: "";
+            position: absolute; top: 0; left: 0;
+            width: 16px; height: 8px;
+            border-radius: 50%;
+            background-color: #9e030e; /* Lighten 10% */
         }
-        .candle-3d {
-            display: inline-block; width: 10px; height: 40px; background: white;
-            margin: 0 5px; position: relative;
-            transform: translateZ(0); /* Simple flat candle in 3d space */
-        }
+
         .flame {
-            width: 14px; height: 20px; background: orange;
-            border-radius: 50% 50% 20% 20%;
-            position: absolute; top: -20px; left: -2px;
-            animation: flicker 0.5s infinite alternate;
-            box-shadow: 0 0 10px orange;
+            position: absolute;
+            background-color: orange;
+            width: 15px; height: 35px;
+            border-radius: 10px 10px 10px 10px / 25px 25px 10px 10px;
+            top: -34px; left: 50%;
+            margin-left: -7.5px;
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(255, 165, 0, 0.5), 0 0 20px rgba(255, 165, 0, 0.5), 0 0 60px rgba(255, 165, 0, 0.5), 0 0 80px rgba(255, 165, 0, 0.5);
+            transform-origin: 50% 90%;
+            animation: flicker 1s ease-in-out alternate infinite;
         }
+
+        /* Asap (tambahan agar fitur tiup berfungsi visualnya) */
         .smoke {
             width: 10px; height: 20px; background: #ccc;
-            border-radius: 50%; position: absolute; top: -25px; left: 0;
+            border-radius: 50%; position: absolute; top: -25px; left: 50%; margin-left: -5px;
             opacity: 0;
+            pointer-events: none;
         }
 
         #blowButton {
-            margin-top: 100px;
+            margin-top: 120px; /* Jarak dari kue */
             padding: 15px 40px; font-size: 1.2em;
             background: var(--gold); border: none; border-radius: 30px;
             font-weight: bold; cursor: pointer;
             box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
-            transform: translateZ(50px); /* Agar tombol melayang */
+            position: relative; z-index: 100;
         }
 
-        /* --- ANIMASI TRANSISI (SPIN & DROP) --- */
-        .world-spin-drop {
-            /* Pindah ke Y: -100vh (ke section kue) DAN Putar Z: 1 putaran penuh */
-            transform: translateY(-100vh) rotateZ(360deg) !important;
-        }
-        
-        .wish-text { opacity: 0; transition: 1s; font-size: 2em; margin-bottom: 20px;}
-        .wish-text.show { opacity: 1; }
-        .final-msg { opacity: 0; position: absolute; top: 20%; font-size: 2.5em; color: var(--gold); width: 100%; text-align: center; transition: 2s; }
-
+        /* --- ANIMASI --- */
         @keyframes shake3d {
             0% { transform: rotateX(-20deg) rotateY(45deg) rotateZ(0deg); }
             25% { transform: rotateX(-20deg) rotateY(40deg) rotateZ(2deg); }
@@ -275,10 +263,22 @@
             75% { transform: rotateX(-20deg) rotateY(40deg) rotateZ(2deg); }
             100% { transform: rotateX(-20deg) rotateY(45deg) rotateZ(0deg); }
         }
-        @keyframes flicker { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0.8; transform: scale(0.9, 1.1); } }
+
+        @keyframes flicker {
+            0% { transform: skewX(5deg); box-shadow: 0 0 10px rgba(255, 165, 0, 0.2), 0 0 20px rgba(255, 165, 0, 0.2), 0 0 60px rgba(255, 165, 0, 0.2), 0 0 80px rgba(255, 165, 0, 0.2) }
+            25% { transform: skewX(-5deg); box-shadow: 0 0 10px rgba(255, 165, 0, 0.5), 0 0 20px rgba(255, 165, 0, 0.5), 0 0 60px rgba(255, 165, 0, 0.5), 0 0 80px rgba(255, 165, 0, 0.5) }
+            50% { transform: skewX(10deg); box-shadow: 0 0 10px rgba(255, 165, 0, 0.3), 0 0 20px rgba(255, 165, 0, 0.3), 0 0 60px rgba(255, 165, 0, 0.3), 0 0 80px rgba(255, 165, 0, 0.3) }
+            75% { transform: skewX(-10deg); box-shadow: 0 0 10px rgba(255, 165, 0, 0.4), 0 0 20px rgba(255, 165, 0, 0.4), 0 0 60px rgba(255, 165, 0, 0.4), 0 0 80px rgba(255, 165, 0, 0.4) }
+            100% { transform: skewX(5deg); box-shadow: 0 0 10px rgba(255, 165, 0, 0.5), 0 0 20px rgba(255, 165, 0, 0.5), 0 0 60px rgba(255, 165, 0, 0.5), 0 0 80px rgba(255, 165, 0, 0.5) }
+        }
+
         @keyframes smokeRise { 100% { opacity: 0; transform: translateY(-40px) scale(2); } }
         .flame.out { display: none; }
         .smoke.rise { animation: smokeRise 1s forwards; opacity: 0.8; }
+
+        .wish-text { opacity: 0; transition: 1s; font-size: 2em; margin-bottom: 20px; margin-top: -50px; z-index: 5;}
+        .wish-text.show { opacity: 1; }
+        .final-msg { opacity: 0; position: absolute; top: 15%; font-size: 2.5em; color: var(--gold); width: 100%; text-align: center; transition: 2s; z-index: 5;}
 
     </style>
 </head>
@@ -299,7 +299,6 @@
                         <div class="lid__face lid--left"><div class="ribbon-h"></div></div>
                         <div class="bow-knot"></div>
                     </div>
-
                     <div class="cube__face cube__face--front"><div class="ribbon-v"></div></div>
                     <div class="cube__face cube__face--back"><div class="ribbon-v"></div></div>
                     <div class="cube__face cube__face--right"><div class="ribbon-h"></div></div>
@@ -307,7 +306,6 @@
                     <div class="cube__face cube__face--bottom"></div>
                 </div>
             </div>
-
             <div class="card-area" id="cardArea"></div>
         </section>
 
@@ -315,24 +313,20 @@
         <section class="cake-section">
             <h1 class="wish-text" id="wishText">Make a Wish... ✨</h1>
             
-            <div class="cake-3d">
-                <div class="candles">
-                    <div class="candle-3d"><div class="flame"></div><div class="smoke"></div></div>
-                    <div class="candle-3d"><div class="flame"></div><div class="smoke"></div></div>
-                    <div class="candle-3d"><div class="flame"></div><div class="smoke"></div></div>
-                </div>
-
-                <div class="cake-tier tier-3">
-                    <div class="face face-front"></div><div class="face face-back"></div>
-                    <div class="face face-right"></div><div class="face face-left"></div><div class="face face-top"></div>
-                </div>
-                <div class="cake-tier tier-2">
-                    <div class="face face-front"></div><div class="face face-back"></div>
-                    <div class="face face-right"></div><div class="face face-left"></div><div class="face face-top"></div>
-                </div>
-                <div class="cake-tier tier-1">
-                    <div class="face face-front"></div><div class="face face-back"></div>
-                    <div class="face face-right"></div><div class="face face-left"></div><div class="face face-top"></div>
+            <div class="cake-container">
+                <div class="cake">
+                    <div class="plate"></div>
+                    <div class="layer layer-bottom"></div>
+                    <div class="layer layer-middle"></div>
+                    <div class="layer layer-top"></div>
+                    <div class="icing"></div>
+                    <div class="drip drip1"></div>
+                    <div class="drip drip2"></div>
+                    <div class="drip drip3"></div>
+                    <div class="candle">
+                        <div class="flame"></div>
+                        <div class="smoke"></div>
+                    </div>
                 </div>
             </div>
 
@@ -343,7 +337,7 @@
     </div>
 
     <script>
-        // === CONFIG ===
+        // === KONFIGURASI KARTU ===
         const cardsData = [
             { type: "Hai Kamu! 👋", text: "Selamat Ulang Tahun! Semoga harimu menyenangkan.", img: "foto1.jpg" },
             { type: "Terima Kasih 🙏", text: "Sudah menjadi teman yang baik.", img: "" },
@@ -357,13 +351,12 @@
         let isOpened = false;
         let cardEls = [];
 
-        // 1. INIT CARDS (STACK)
+        // 1. INIT CARDS
         function initCards() {
             cardsData.forEach((data, index) => {
                 const el = document.createElement('div');
                 el.className = 'card';
                 el.style.zIndex = cardsData.length - index;
-                // Render content
                 const img = data.img ? `<img src="${data.img}">` : '';
                 el.innerHTML = `<h3>${data.type}</h3>${img}<p>${data.text}</p><div style="font-size:0.8em; color:#888">(Tap untuk lanjut)</div>`;
                 el.onclick = () => nextCard(index);
@@ -377,18 +370,14 @@
         function openGift() {
             if (isOpened) return;
             isOpened = true;
-            giftCube.parentElement.classList.add('shaking'); // Shake container
-
+            giftCube.parentElement.classList.add('shaking'); 
             setTimeout(() => {
                 giftCube.parentElement.classList.remove('shaking');
-                giftCube.classList.add('open'); // Open Lid
-                
-                // Pop Cards
+                giftCube.classList.add('open'); 
                 setTimeout(() => {
                     cardEls.forEach((el, i) => {
                         setTimeout(() => {
                             el.classList.add('active');
-                            // Slight rotation for messy stack look
                             el.style.transform = `translateY(0) rotate(${(Math.random()*10)-5}deg)`;
                         }, i * 200);
                     });
@@ -399,8 +388,7 @@
         // 3. NEXT CARD
         function nextCard(index) {
             const el = cardEls[index];
-            el.classList.add('swiped'); // Buang kartu
-
+            el.classList.add('swiped');
             if (index === cardsData.length - 1) {
                 setTimeout(startTransition, 800);
             }
@@ -408,40 +396,49 @@
 
         // 4. TRANSITION (SPIN & DROP)
         function startTransition() {
-            // Tambahkan class untuk memutar dunia dan turun ke bawah
             world.classList.add('world-spin-drop');
-            
             setTimeout(() => {
                 document.getElementById('wishText').classList.add('show');
                 initBlow();
-            }, 2500); // Tunggu animasi selesai
+            }, 2500);
         }
 
-        // 5. BLOW CANDLES
+        // 5. BLOW CANDLES (UPDATED FOR NEW CAKE)
         function initBlow() {
             const btn = document.getElementById('blowButton');
-            const flames = document.querySelectorAll('.flame');
-            const smokes = document.querySelectorAll('.smoke');
+            const flames = document.querySelectorAll('.flame'); // Pilih semua api
+            const smokes = document.querySelectorAll('.smoke'); // Pilih semua asap
             let timer;
 
             const start = (e) => {
                 e.preventDefault();
-                btn.style.transform = "translateZ(50px) scale(0.9)";
-                flames.forEach(f => f.style.transform = "scale(1.2)"); // Api membesar siap ditiup
+                btn.style.transform = "scale(0.9)";
+                // Efek api membesar saat mau ditiup
+                flames.forEach(f => {
+                    f.style.transform = "scale(1.2)";
+                    f.style.animationDuration = "0.2s"; // Bergetar cepat
+                });
+                
                 timer = setTimeout(() => {
-                    // Success
+                    // Success Blow
                     flames.forEach(f => f.classList.add('out'));
                     smokes.forEach(s => s.classList.add('rise'));
+                    
                     btn.style.display = 'none';
                     document.getElementById('wishText').style.opacity = 0;
                     document.getElementById('finalMsg').style.opacity = 1;
-                }, 2000);
+                }, 2000); // Tahan 2 detik
             };
 
             const end = () => {
                 clearTimeout(timer);
-                btn.style.transform = "translateZ(50px) scale(1)";
-                flames.forEach(f => f.style.transform = "scale(1)");
+                btn.style.transform = "scale(1)";
+                flames.forEach(f => {
+                    if(!f.classList.contains('out')){
+                        f.style.transform = "scale(1)";
+                        f.style.animationDuration = "1s"; // Normal kembali
+                    }
+                });
             };
 
             btn.addEventListener('mousedown', start);
