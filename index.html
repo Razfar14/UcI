@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Epic Birthday Gift</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="world-container">
+        
+        <section class="gift-section">
+            <h1 style="margin-bottom: 20px; z-index: 6;">Tap Kado-nya! 🎁</h1>
+            
+            <div class="gift-container" id="gift" onclick="openGift()">
+                <div class="gift-glow"></div>
+                <div class="gift-lid">
+                    <div class="bow"></div>
+                </div>
+                <div class="gift-box"></div>
+            </div>
+
+            <div class="card-area" id="cardArea"></div>
+        </section>
+
+        <section class="cake-section">
+            <h1 class="wish-text" id="wishText">Make a Wish...</h1>
+            <div class="cake-container">
+                <div class="candles-container">
+                    <div class="candle"><div class="flame"></div><div class="smoke"></div></div>
+                    <div class="candle"><div class="flame"></div><div class="smoke"></div></div>
+                    <div class="candle"><div class="flame"></div><div class="smoke"></div></div>
+                </div>
+                <div class="cake-top"></div>
+                <div class="cake-middle"></div>
+                <div class="cake-base"></div>
+            </div>
+            <button id="blowButton">Tahan untuk Meniup</button>
+            <h1 class="final-message" id="finalMsg">🎉 Happy Birthday! 🎉</h1>
+        </section>
+
+    </div>
+
+    <script>
+        // ================= DATA KARTU =================
+        const cardsData = [
+            {
+                type: "Hi Kamu! 👋",
+                img: "foto1.jpg", 
+                text: "Selamat Ulang Tahun! Semoga harimu menyenangkan."
+            },
+            {
+                type: "Terima Kasih 🙏",
+                img: "", 
+                text: "Sudah menjadi teman yang luar biasa selama ini."
+            },
+            {
+                type: "Doa Terbaik ✨",
+                img: "foto2.jpg",
+                text: "Semoga semua impianmu di tahun ini tercapai. Aamiin."
+            },
+            {
+                type: "Let's Rock! 🎸",
+                img: "foto_ultah_final.jpg",
+                text: "Tahun ini adalah milikmu. Semangat terus! 🎂"
+            }
+        ];
+
+        const gift = document.getElementById('gift');
+        const cardArea = document.getElementById('cardArea');
+        const worldContainer = document.getElementById('world-container');
+        const blowButton = document.getElementById('blowButton');
+        let isGiftOpened = false;
+        let cardElements = []; // Menyimpan elemen kartu DOM
+
+        // --- 1. Persiapan: Render semua kartu di awal (Stack) ---
+        function initCards() {
+            // Kita render kartu secara terbalik (reverse) agar index 0 ada di paling atas tumpukan (z-index tertinggi)
+            // Atau render biasa, tapi atur z-index manual.
+            
+            cardsData.forEach((data, index) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                // Z-index: Kartu pertama (0) paling tinggi
+                card.style.zIndex = cardsData.length - index; 
+                
+                // HTML Kartu
+                const imgHTML = data.img ? `<img src="${data.img}" alt="Foto">` : '';
+                card.innerHTML = `
+                    <h3>${data.type}</h3>
+                    ${imgHTML}
+                    <p>${data.text}</p>
+                    <div class="tap-hint">Tap untuk lanjut &rarr;</div>
+                `;
+
+                // Event Listener: Klik kartu ini untuk membuangnya
+                card.onclick = () => handleCardClick(index);
+
+                cardArea.appendChild(card);
+                cardElements.push(card);
+            });
+        }
+
+        initCards(); // Jalankan saat loading
+
+        // --- 2. Buka Kado ---
+        function openGift() {
+            if (isGiftOpened) return;
+            isGiftOpened = true;
+
+            gift.classList.add('shaking');
+
+            setTimeout(() => {
+                gift.classList.remove('shaking');
+                gift.classList.add('open');
+                
+                // Munculkan semua kartu dari dalam kado
+                setTimeout(() => {
+                    revealCards();
+                }, 600);
+            }, 1000);
+        }
+
+        // --- 3. Animasi Kartu Muncul (Pop Up dari Kado) ---
+        function revealCards() {
+            cardElements.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('active');
+                    // Beri sedikit rotasi acak agar terlihat seperti tumpukan natural
+                    const randomRotate = (Math.random() * 10) - 5; // -5 sampai 5 derajat
+                    card.style.transform = `translateY(0) rotate(${randomRotate}deg)`;
+                }, index * 100); // Delay bertingkat
+            });
+        }
+
+        // --- 4. Logika Pindah Kartu (Swipe Out) ---
+        function handleCardClick(index) {
+            // Hanya izinkan klik pada kartu paling atas yang belum di-swipe
+            // Kita cek apakah kartu sebelumnya sudah hilang. 
+            // Namun karena z-index, user pasti klik yang paling atas yang terlihat.
+            
+            const currentCard = cardElements[index];
+
+            // Animasi buang kartu (Swipe Right/Left)
+            // Kita gunakan !important di CSS class 'swiped' untuk override transform sebelumnya
+            currentCard.classList.add('swiped');
+
+            // Cek apakah ini kartu terakhir?
+            if (index === cardsData.length - 1) {
+                setTimeout(() => {
+                    finishCards();
+                }, 800);
+            }
+        }
+
+        // --- 5. Selesai Kartu -> Pindah ke Kue ---
+        function finishCards() {
+            worldContainer.style.transform = 'translateY(-100vh)';
+            setTimeout(() => {
+                document.getElementById('wishText').classList.add('show');
+                initBlowFeature();
+            }, 1500);
+        }
+
+        // --- 6. Fitur Tiup Lilin (Sama seperti sebelumnya) ---
+        function initBlowFeature() {
+            let blowTimer;
+            const requiredHoldTime = 2000;
+            const flames = document.querySelectorAll('.flame');
+            const smokes = document.querySelectorAll('.smoke');
+
+            function startBlowing(e) {
+                e.preventDefault();
+                blowButton.style.transform = 'scale(0.95)';
+                flames.forEach(f => f.style.animationDuration = '0.1s');
+
+                blowTimer = setTimeout(() => {
+                    flames.forEach(f => f.classList.add('out'));
+                    smokes.forEach(s => s.classList.add('rise'));
+                    blowButton.style.display = 'none';
+                    document.getElementById('wishText').style.opacity = 0;
+                    document.getElementById('finalMsg').style.opacity = 1;
+                }, requiredHoldTime);
+            }
+
+            function stopBlowing() {
+                clearTimeout(blowTimer);
+                blowButton.style.transform = 'scale(1)';
+                flames.forEach(f => {
+                    if (!f.classList.contains('out')) {
+                       f.style.animationDuration = '0.5s'; 
+                    }
+                });
+            }
+
+            blowButton.addEventListener('mousedown', startBlowing);
+            blowButton.addEventListener('mouseup', stopBlowing);
+            blowButton.addEventListener('mouseleave', stopBlowing);
+            blowButton.addEventListener('touchstart', startBlowing);
+            blowButton.addEventListener('touchend', stopBlowing);
+        }
+
+    </script>
+</body>
+</html>
