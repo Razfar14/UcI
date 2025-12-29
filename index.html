@@ -27,7 +27,14 @@
         <section class="cake-section">
             
             <p class="wish-text" id="wishText" style="font-size: 1.5em; top: 20%; padding: 0 20px; box-sizing: border-box;">...</p>
+            
+            <audio id="musicCards" loop>
+                <source src="musik_awal.mp3" type="audio/mpeg">
+            </audio>
 
+            <audio id="musicCake" loop>
+                <source src="musik_kue.mp3" type="audio/mpeg">
+            </audio>
             <div class="cake-container" id="cakeContainer">
                 <div class="cake">
                     <div class="plate"></div>
@@ -53,11 +60,21 @@
     </div>
 
     <script>
+        // ================= CONFIG AUDIO (SFX) =================
+        // Ganti nama file sesuai file kamu
+        const sfxBlow = new Audio('tiup.mp3');   // Suara angin meniup
+        const sfxParty = new Audio('party.mp3'); // Suara terompet/tepuk tangan
+
+        sfxBlow.loop = true; // Agar suara tiup tidak putus saat ditahan lama
+
+        // Ambil referensi 2 musik background
+        const musicCards = document.getElementById('musicCards');
+        const musicCake = document.getElementById('musicCake');
         // ================= DATA KARTU =================
         const cardsData = [
             { type: "Ucapan Untuk", img: "foto1.jpg", text: "Selamat Ulang Tahun! Semoga Ulang Tahun mu menjadi yang terbaik." },
-            { type: "Terima Kasih ", img: "", text: "Terimakasi untuk semuanya Iler! Mungkin kamu pasti tau kenapa hehe...." },
-            { type: "Doa Untuk Mu", img: "foto2.jpg", text: "Dari ku, ku doakan semoga yang yang kau impikan menjadi kenyataan." },
+            { type: "Terima Kasih ", img: "kucing.jpg", text: "Terimakasi untuk semuanya Iler! Mungkin kamu pasti tau kenapa hehe...." },
+            { type: "Doa Untuk Mu", img: "emot.webp", text: "Dari ku, ku doakan semoga yang yang kau impikan menjadi kenyataan." },
             { type: "Sesuatu Hal Yang Mengigatkan Mu", img: "FotoPengingat.png", text: "Semoga semua janji akan menjadi nyata" }
         ];
 
@@ -68,6 +85,7 @@
         const wishText = document.getElementById('wishText');
         const finalMsg = document.getElementById('finalMsg');
         const cakeContainer = document.getElementById('cakeContainer'); // Referensi Kue
+        const bgMusic = document.getElementById('bgMusic');
         
         let isGiftOpened = false;
         let cardElements = []; 
@@ -166,11 +184,19 @@
             function startBlowing(e) {
                 e.preventDefault();
                 blowButton.style.transform = 'translateX(-50%) scale(0.95)';
+                // --- 2. NYALAKAN SFX TIUP ---
+                sfxBlow.currentTime = 0; // Reset ke awal
+                sfxBlow.play();
                 flames.forEach(f => { f.style.transform = "scale(1.2)"; f.style.animationDuration = '0.1s'; });
 
                 blowTimer = setTimeout(() => {
                     flames.forEach(f => f.classList.add('out'));
                     smokes.forEach(s => s.classList.add('rise'));
+                    // Matikan suara tiup
+                    sfxBlow.pause();
+                    
+                    // --- 3. NYALAKAN SFX SURPRISE ---
+                    sfxParty.play();
                     blowButton.style.display = 'none';
                     wishText.style.opacity = 0;
                     finalMsg.style.opacity = 1;
@@ -180,6 +206,9 @@
             function stopBlowing() {
                 clearTimeout(blowTimer);
                 blowButton.style.transform = 'translateX(-50%) scale(1)';
+                // Matikan suara tiup jika tombol dilepas sebelum selesai
+                sfxBlow.pause();
+                sfxBlow.currentTime = 0;
                 flames.forEach(f => {
                     if (!f.classList.contains('out')) {
                        f.style.transform = "scale(1)"; f.style.animationDuration = '1s'; 
