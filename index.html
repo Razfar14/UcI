@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Untuk Mu</title>
+    <title>Untuk Yang Berulang Tahun</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,19 +12,23 @@
         
         <section class="gift-section">
             <h1 style="margin-bottom: 20px; z-index: 6;">Tap Kado-nya! 🎁</h1>
+            
             <div class="gift-container" id="gift" onclick="openGift()">
                 <div class="gift-glow"></div>
-                <div class="gift-lid"><div class="bow"></div></div>
+                <div class="gift-lid">
+                    <div class="bow"></div>
+                </div>
                 <div class="gift-box"></div>
             </div>
+
             <div class="card-area" id="cardArea"></div>
         </section>
 
         <section class="cake-section">
             
-            <h1 class="wish-text" id="wishText">Make a Wish... ✨</h1>
+            <p class="wish-text" id="wishText" style="font-size: 1.5em; top: 20%; padding: 0 20px; box-sizing: border-box;">...</p>
 
-            <div class="cake-container">
+            <div class="cake-container" id="cakeContainer">
                 <div class="cake">
                     <div class="plate"></div>
                     <div class="layer layer-bottom"></div>
@@ -41,7 +45,7 @@
                 </div>
             </div>
 
-            <button id="blowButton">Tahan untuk Meniup</button>
+            <button id="blowButton" style="display: none;">Tahan untuk Meniup</button>
             
             <h1 class="final-message" id="finalMsg">🎉 Happy Birthday! 🎉</h1>
         </section>
@@ -49,11 +53,12 @@
     </div>
 
     <script>
+        // ================= DATA KARTU =================
         const cardsData = [
-            { type: "Hi Kamu! 👋", img: "foto1.jpg", text: "Selamat Ulang Tahun! Semoga harimu menyenangkan." },
-            { type: "Terima Kasih 🙏", img: "", text: "Sudah menjadi teman yang luar biasa selama ini." },
-            { type: "Doa Terbaik ✨", img: "foto2.jpg", text: "Semoga semua impianmu di tahun ini tercapai. Aamiin." },
-            { type: "Let's Rock! 🎸", img: "foto_ultah_final.jpg", text: "Tahun ini adalah milikmu. Semangat terus! 🎂" }
+            { type: "Ucapan Untuk", img: "foto1.jpg", text: "Selamat Ulang Tahun! Semoga Ulang Tahun mu menjadi yang terbaik." },
+            { type: "Terima Kasih ", img: "", text: "Terimakasi untuk semuanya Iler! Mungkin kamu pasti tau kenapa hehe...." },
+            { type: "Doa Untuk Mu", img: "foto2.jpg", text: "Dari ku, ku doakan semoga yang yang kau impikan menjadi kenyataan." },
+            { type: "Sesuatu Hal Yang Mengigatkan Mu", img: "FotoPengingat.png", text: "Semoga semua janji akan menjadi nyata" }
         ];
 
         const gift = document.getElementById('gift');
@@ -62,6 +67,7 @@
         const blowButton = document.getElementById('blowButton');
         const wishText = document.getElementById('wishText');
         const finalMsg = document.getElementById('finalMsg');
+        const cakeContainer = document.getElementById('cakeContainer'); // Referensi Kue
         
         let isGiftOpened = false;
         let cardElements = []; 
@@ -87,7 +93,7 @@
             setTimeout(() => {
                 gift.classList.remove('shaking');
                 gift.classList.add('open');
-                setTimeout(revealCards, 600);
+                setTimeout(() => { revealCards(); }, 600);
             }, 1000);
         }
 
@@ -95,29 +101,64 @@
             cardElements.forEach((card, index) => {
                 setTimeout(() => {
                     card.classList.add('active');
-                    card.style.transform = `translateY(0) rotate(${(Math.random() * 10) - 5}deg)`;
+                    const randomRotate = (Math.random() * 10) - 5; 
+                    card.style.transform = `translateY(0) rotate(${randomRotate}deg)`;
                 }, index * 100);
             });
         }
 
         function handleCardClick(index) {
-            cardElements[index].classList.add('swiped');
-            if (index === cardsData.length - 1) setTimeout(finishCards, 800);
+            const currentCard = cardElements[index];
+            currentCard.classList.add('swiped');
+            if (index === cardsData.length - 1) {
+                setTimeout(() => { finishCards(); }, 800);
+            }
         }
 
+        // --- LOGIKA UTAMA: JATUH -> PESAN -> KUE MUNCUL ---
         function finishCards() {
             worldContainer.classList.add('falling-effect');
+            
             setTimeout(() => {
                 worldContainer.classList.remove('falling-effect');
                 worldContainer.classList.add('landed-impact');
+                
+                // 1. Munculkan Pesan "Ada yang kurang" (KUE MASIH HILANG)
                 setTimeout(() => {
+                    wishText.innerText = "Sepertinya kayaknya ada yang kurang dari ulang tahun ini...";
                     wishText.classList.add('show');
-                    initBlowFeature();
+
+                    // 2. Baca pesan selama 3 detik
+                    setTimeout(() => {
+                        wishText.classList.remove('show'); // Pesan hilang
+
+                        // 3. MAGIC MOMENT: Kue Muncul + Pesan Baru
+                        setTimeout(() => {
+                            // Munculkan Kue
+                            cakeContainer.classList.add('show-cake');
+                            
+                            // Ganti teks
+                            wishText.innerText = "Make a Wish... ✨";
+                            wishText.classList.add('show');
+                            
+                            // Munculkan tombol
+                            setTimeout(() => {
+                                initBlowFeature();
+                            }, 1000); 
+                            
+                        }, 1000); // Jeda setelah teks hilang
+
+                    }, 3000); // Durasi baca teks pertama
                 }, 500);
-            }, 1000);
+            }, 1000); 
         }
 
         function initBlowFeature() {
+            blowButton.style.display = 'block';
+            blowButton.style.opacity = 0;
+            blowButton.style.transition = 'opacity 1s';
+            setTimeout(() => blowButton.style.opacity = 1, 100);
+
             let blowTimer;
             const flames = document.querySelectorAll('.flame');
             const smokes = document.querySelectorAll('.smoke');
@@ -126,6 +167,7 @@
                 e.preventDefault();
                 blowButton.style.transform = 'translateX(-50%) scale(0.95)';
                 flames.forEach(f => { f.style.transform = "scale(1.2)"; f.style.animationDuration = '0.1s'; });
+
                 blowTimer = setTimeout(() => {
                     flames.forEach(f => f.classList.add('out'));
                     smokes.forEach(s => s.classList.add('rise'));
@@ -139,7 +181,9 @@
                 clearTimeout(blowTimer);
                 blowButton.style.transform = 'translateX(-50%) scale(1)';
                 flames.forEach(f => {
-                    if (!f.classList.contains('out')) { f.style.transform = "scale(1)"; f.style.animationDuration = '1s'; }
+                    if (!f.classList.contains('out')) {
+                       f.style.transform = "scale(1)"; f.style.animationDuration = '1s'; 
+                    }
                 });
             }
 
