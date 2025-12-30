@@ -219,7 +219,7 @@
                 // --- 2. NYALAKAN SFX TIUP ---
                 sfxBlow.currentTime = 0; // Reset ke awal
                 sfxBlow.play();
-                flames.forEach(f => { f.style.transform = "scale(1.2)"; f.style.animationDuration = '0.1s'; });
+                flames.forEach(f => { f.style.transform = "scale(1.2)"; f.style.animationDuration = '0.3s'; });
 
                 blowTimer = setTimeout(() => {
                     flames.forEach(f => f.classList.add('out'));
@@ -246,7 +246,7 @@
                 sfxBlow.currentTime = 0;
                 flames.forEach(f => {
                     if (!f.classList.contains('out')) {
-                       f.style.transform = "scale(1)"; f.style.animationDuration = '1s'; 
+                       f.style.transform = "scale(1)"; f.style.animationDuration = '3s'; 
                     }
                 });
             }
