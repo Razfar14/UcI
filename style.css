@@ -157,20 +157,41 @@ section {
 .wish-text.show { opacity: 1; }
 
 /* Teks Akhir */
+/* Update style untuk Teks Happy Birthday agar responsif & megah */
 .final-message {
     position: absolute;
-    top: 20%; /* Posisi di tengah agak atas */
+    
+    /* Atur posisi vertikal (sedikit di atas kue) */
+    top: 15%; 
     left: 50%;
     transform: translateX(-50%);
-    font-size: 2.5em;
-    color: var(--gold);
-    opacity: 0;
-    transition: opacity 2s;
-    width: 100%;
+    
+    /* Agar teks tidak mentok pinggir layar HP */
+    width: 90%;
+    max-width: 600px;
+    
+    /* Izinkan teks turun ke baris baru jika kepanjangan */
+    white-space: normal;
+    word-wrap: break-word;
     text-align: center;
+    
+    /* Ukuran font responsif (Agar besar tapi tetap muat di HP) */
+    /* Artinya: Minimal 2rem, Ideal 6vw, Maksimal 4rem */
+    font-size: clamp(2rem, 6vw, 4rem);
+    
+    font-weight: bold;
+    color: var(--gold);
+    
+    /* Efek Glow/Bersinar Emas */
+    text-shadow: 
+        0 0 10px rgba(255, 215, 0, 0.8),
+        0 0 20px rgba(255, 215, 0, 0.5),
+        0 0 40px rgba(255, 215, 0, 0.3);
+        
+    opacity: 0;
+    transition: opacity 2s ease-in; /* Muncul perlahan yang dramatis */
     z-index: 101;
-    pointer-events: none;
-    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    pointer-events: none; /* Supaya tidak menghalangi klik lain */
 }
 
 @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
