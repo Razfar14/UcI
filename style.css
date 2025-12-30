@@ -121,77 +121,111 @@ section {
     white-space: nowrap;
 }
 
-/* Teks Wish diposisikan di atas kue */
+/* ==================== 1. STYLE UTAMA (UNTUK HP) ==================== */
+
+/* Teks Wish (Pesan Awal "Ada yang kurang...") */
 .wish-text {
     position: absolute;
     
-    /* Posisi vertikal sedikit disesuaikan agar aman */
-    top: 25%; 
+    /* Posisi vertikal: Di HP agak turun sedikit supaya enak dibaca */
+    top: 20%; 
     left: 50%;
     transform: translateX(-50%);
     
-    /* Agar teks tidak mentok pinggir layar HP */
+    /* Lebar teks di HP */
     width: 90%; 
-    max-width: 600px; /* Batas lebar di layar besar */
+    max-width: 600px; 
     
-    /* Agar teks turun ke bawah jika kepanjangan */
+    /* Wajib: Izinkan turun baris agar tidak terpotong */
     white-space: normal; 
     word-wrap: break-word;
     
-    /* Perataan teks */
+    /* Perataan & Font */
     text-align: center;
-    line-height: 1.5; /* Jarak antar baris agar mudah dibaca */
+    line-height: 1.4; /* Jarak antar baris */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     
-    /* Ukuran font responsif (menggunakan clamp) */
-    /* Artinya: Minimal 1rem, Ideal 4vw, Maksimal 2rem */
-    font-size: clamp(1.2rem, 4vw, 2rem);
+    /* Ukuran Font Responsif untuk HP */
+    /* Minimal 1.2rem, tapi mencoba mengisi 5% lebar layar */
+    font-size: clamp(1.2rem, 5vw, 2rem);
     
     font-weight: bold;
     color: white;
-    text-shadow: 0 2px 5px rgba(0,0,0,0.7); /* Bayangan agar terbaca di background terang/gelap */
+    
+    /* Bayangan teks agar terbaca di atas background gelap/terang */
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
     
     opacity: 0;
     transition: opacity 1s;
     z-index: 100;
 }
-.wish-text.show { opacity: 1; }
 
-/* Teks Akhir */
-/* Update style untuk Teks Happy Birthday agar responsif & megah */
+.wish-text.show {
+    opacity: 1;
+}
+
+/* Teks Akhir (Happy Birthday) */
 .final-message {
     position: absolute;
     
-    /* Atur posisi vertikal (sedikit di atas kue) */
+    /* Posisi di HP */
     top: 15%; 
     left: 50%;
     transform: translateX(-50%);
     
-    /* Agar teks tidak mentok pinggir layar HP */
     width: 90%;
-    max-width: 600px;
     
-    /* Izinkan teks turun ke baris baru jika kepanjangan */
+    /* Wajib: Izinkan turun baris */
     white-space: normal;
     word-wrap: break-word;
     text-align: center;
     
-    /* Ukuran font responsif (Agar besar tapi tetap muat di HP) */
-    /* Artinya: Minimal 2rem, Ideal 6vw, Maksimal 4rem */
-    font-size: clamp(2rem, 6vw, 4rem);
+    /* Ukuran Font HP: Minimal 2rem, Maksimal 3.5rem */
+    font-size: clamp(2rem, 8vw, 3.5rem);
     
     font-weight: bold;
-    color: var(--gold);
+    color: var(--gold); /* Pastikan variabel --gold ada di :root */
     
-    /* Efek Glow/Bersinar Emas */
+    /* Efek Glow Emas yang Kuat */
     text-shadow: 
         0 0 10px rgba(255, 215, 0, 0.8),
         0 0 20px rgba(255, 215, 0, 0.5),
         0 0 40px rgba(255, 215, 0, 0.3);
         
     opacity: 0;
-    transition: opacity 2s ease-in; /* Muncul perlahan yang dramatis */
+    transition: opacity 2s ease-in;
     z-index: 101;
-    pointer-events: none; /* Supaya tidak menghalangi klik lain */
+    pointer-events: none; /* Klik tembus ke belakang */
+}
+
+
+/* ==================== 2. KHUSUS LAYAR BESAR (LAPTOP/PC) ==================== */
+/* Kode di bawah ini hanya jalan jika layar lebih lebar dari 768px (Tablet/Laptop) */
+
+@media (min-width: 768px) {
+    
+    /* Modifikasi Wish Text di Laptop */
+    .wish-text {
+        top: 15%; /* Naikkan sedikit agar tidak kena kue */
+        font-size: 2.5rem; /* Font jauh lebih besar */
+        max-width: 800px; /* Lebar teks lebih luas */
+        line-height: 1.6;
+        text-shadow: 0 3px 6px rgba(0,0,0,0.9);
+    }
+
+    /* Modifikasi Happy Birthday di Laptop */
+    .final-message {
+        top: 10%; /* Lebih ke atas lagi */
+        font-size: 5rem; /* SANGAT BESAR agar megah */
+        width: 100%; /* Memenuhi layar */
+        max-width: 1000px;
+        
+        /* Glow lebih terang di layar besar */
+        text-shadow: 
+            0 0 20px rgba(255, 215, 0, 1),
+            0 0 40px rgba(255, 215, 0, 0.8),
+            0 0 60px rgba(255, 215, 0, 0.6);
+    }
 }
 
 @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
