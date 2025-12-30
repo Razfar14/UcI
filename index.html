@@ -29,11 +29,11 @@
             <p class="wish-text" id="wishText" style="font-size: 1.5em; top: 20%; padding: 0 20px; box-sizing: border-box;">...</p>
             
             <audio id="musicCards" loop>
-                <source src="musik_awal.mp3" type="audio/mpeg">
+                <source src="musikAwal.mp3" type="audio/mpeg">
             </audio>
 
             <audio id="musicCake" loop>
-                <source src="musik_kue.mp3" type="audio/mpeg">
+                <source src="musikKue.mp3" type="audio/mpeg">
             </audio>
             <div class="cake-container" id="cakeContainer">
                 <div class="cake">
@@ -66,6 +66,27 @@
         const sfxParty = new Audio('party.mp3'); // Suara terompet/tepuk tangan
 
         sfxBlow.loop = true; // Agar suara tiup tidak putus saat ditahan lama
+       
+        // ================= HELPER: FUNGSI FADE OUT =================
+        // Fungsi ini akan menurunkan volume perlahan sampai 0
+        function fadeOutAudio(audioEl, duration) {
+            const stepTime = 50; // Update setiap 50ms
+            const steps = duration / stepTime; // Berapa kali update
+            const volStep = audioEl.volume / steps; // Berapa banyak volume turun per update
+
+            const fadeInterval = setInterval(() => {
+                // Cek apakah volume masih cukup besar untuk dikurangi
+                if (audioEl.volume > volStep) {
+                    audioEl.volume -= volStep;
+                } else {
+                    // Jika sudah sangat kecil, matikan total
+                    audioEl.volume = 0;
+                    audioEl.pause();
+                    audioEl.currentTime = 0; // Reset lagu
+                    clearInterval(fadeInterval); // Hentikan loop
+                }
+            }, stepTime);
+        }
 
         // Ambil referensi 2 musik background
         const musicCards = document.getElementById('musicCards');
@@ -85,7 +106,7 @@
         const wishText = document.getElementById('wishText');
         const finalMsg = document.getElementById('finalMsg');
         const cakeContainer = document.getElementById('cakeContainer'); // Referensi Kue
-        const bgMusic = document.getElementById('bgMusic');
+        
         
         let isGiftOpened = false;
         let cardElements = []; 
@@ -107,6 +128,9 @@
         function openGift() {
             if (isGiftOpened) return;
             isGiftOpened = true;
+            // --- FASE 1: Play Musik Awal (Kartu) ---
+            musicCards.volume = 0.5; 
+            musicCards.play().catch(e => console.log("Gagal play musik kartu:", e));
             gift.classList.add('shaking');
             setTimeout(() => {
                 gift.classList.remove('shaking');
@@ -136,6 +160,10 @@
         // --- LOGIKA UTAMA: JATUH -> PESAN -> KUE MUNCUL ---
         function finishCards() {
             worldContainer.classList.add('falling-effect');
+
+            // --- FADE OUT MUSIK KARTU ---
+            // Musik akan mengecil perlahan selama 1.5 detik (1500ms)
+            fadeOutAudio(musicCards, 1500);
             
             setTimeout(() => {
                 worldContainer.classList.remove('falling-effect');
@@ -154,6 +182,10 @@
                         setTimeout(() => {
                             // Munculkan Kue
                             cakeContainer.classList.add('show-cake');
+                            
+                            // --- FASE 2: Play Musik Kue (Happy Birthday) ---
+                            musicCake.volume = 0.6; 
+                            musicCake.play().catch(e => console.log("Gagal play musik kue:", e));
                             
                             // Ganti teks
                             wishText.innerText = "Make a Wish... ✨";
@@ -194,9 +226,12 @@
                     smokes.forEach(s => s.classList.add('rise'));
                     // Matikan suara tiup
                     sfxBlow.pause();
+
+                    // --- STOP MUSIK KUE SAAT SURPRISE ---
+                    //musicCake.pause();
                     
                     // --- 3. NYALAKAN SFX SURPRISE ---
-                    sfxParty.play();
+                    //sfxParty.play();
                     blowButton.style.display = 'none';
                     wishText.style.opacity = 0;
                     finalMsg.style.opacity = 1;
